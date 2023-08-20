@@ -4,6 +4,7 @@
 #include <chrono>
 #include <sstream>
 #include <mutex>
+#include <stdatomic.h>
 #include "gptlib.h"
 
 // ====================================================
@@ -27,7 +28,7 @@ std::mutex PrintThread::_mutexPrint{};
 
 // ====================================================
 
-bool stop = false;
+atomic_bool stop = false;
 
 void foo()
 {
@@ -45,7 +46,7 @@ void bar(int x)
 {
     PrintThread{} << "in bar\n";
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1424));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     stop = true;
 
