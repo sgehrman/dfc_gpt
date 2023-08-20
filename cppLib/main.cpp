@@ -1,16 +1,55 @@
 // thread example
 #include <iostream> // std::cout
 #include <thread>   // std::thread
+#include <chrono>
+#include <sstream>
+#include <mutex>
 #include "gptlib.h"
+
+// ====================================================
+
+class PrintThread : public std::ostringstream
+{
+public:
+    PrintThread() = default;
+
+    ~PrintThread()
+    {
+        std::lock_guard<std::mutex> guard(_mutexPrint);
+        std::cout << this->str();
+    }
+
+private:
+    static std::mutex _mutexPrint;
+};
+
+std::mutex PrintThread::_mutexPrint{};
+
+// ====================================================
+
+bool stop = false;
 
 void foo()
 {
-    // do stuff...
+    PrintThread{} << "in foo \n";
+
+    while (!stop)
+    {
+        PrintThread{} << "running\n";
+    }
+
+    PrintThread{} << "out foo \n";
 }
 
 void bar(int x)
 {
-    // do stuff...
+    PrintThread{} << "in bar\n";
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1424));
+
+    stop = true;
+
+    PrintThread{} << "out bar \n";
 }
 
 int main()
@@ -20,16 +59,16 @@ int main()
 
     llmodel_set_implementation_search_path("/home/steve/.local/share/re.distantfutu.deckr/gpt/libs/");
 
-    std::cout << llmodel_get_implementation_search_path();
-    std::cout << "\n";
+    PrintThread{} << llmodel_get_implementation_search_path();
+    PrintThread{} << "\n";
 
-    std::cout << "main, foo and bar now execute concurrently...\n";
+    PrintThread{} << "main, foo and bar now execute concurrently...\n";
 
     // synchronize threads:
     first.join();  // pauses until first finishes
     second.join(); // pauses until second finishes
 
-    std::cout << "foo and bar completed.\n";
+    PrintThread{} << "foo and bar completed.\n";
 
     return 0;
 }
