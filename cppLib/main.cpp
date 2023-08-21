@@ -160,9 +160,18 @@ extern "C"
     void promptThread(llmodel_model model, const char *prompt,
                       llmodel_prompt_context *ctx)
     {
-        fprintf(stderr, "############ prompt: %s ----\n", prompt);
-
-        llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, ctx);
+        try
+        {
+            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, ctx);
+        }
+        catch (const std::exception &e)
+        {
+            fprintf(stderr, "llmodel_prompt bombed: %s", e.what());
+        }
+        catch (...)
+        {
+            fprintf(stderr, "llmodel_prompt bombed");
+        }
 
         threadMutex.unlock();
 
