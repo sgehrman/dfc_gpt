@@ -160,9 +160,14 @@ extern "C"
     void promptThread(llmodel_model model, const char *prompt,
                       llmodel_prompt_context *ctx)
     {
+
         try
         {
-            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, ctx);
+            // this solved a crash, need to copy the ctx and use it for the next
+            // query
+            llmodel_prompt_context copyCtx = *ctx;
+
+            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, &copyCtx);
         }
         catch (const std::exception &e)
         {
@@ -174,25 +179,19 @@ extern "C"
         }
 
         threadMutex.unlock();
-
-        fprintf(stderr, "unlocking\n");
     }
 
     void threadedPrompt(llmodel_model model, const char *prompt,
                         llmodel_prompt_context *ctx)
     {
-        fprintf(stderr, "waiting\n");
 
         running = false;
         threadMutex.lock();
         running = true;
 
-        fprintf(stderr, "ready\n");
-
         std::thread t = std::thread(promptThread, model, prompt, ctx);
 
-        fprintf(stderr, "detach  \n");
-        t.join();
+        t.detach();
     }
 
 #ifdef __cplusplus
