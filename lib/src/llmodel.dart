@@ -62,8 +62,7 @@ class LLModel {
         ..context_erase = promptConfig.contextErase;
 
       _library = LLModelLibrary(
-        // TODO(SNG): pathstuff
-        // pathToLibrary: '$librarySearchPath/libllmodel${_getFileSuffix()}',
+        // the dfc-gpt.so lib wraps the main libllmodel.so lib',
         pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
       );
 
