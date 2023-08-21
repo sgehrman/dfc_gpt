@@ -66,13 +66,35 @@ typedef LLModelSetImplementationSearchPath = void Function(
   ffi.Pointer<pffi.Utf8>,
 );
 
-void callbackSafe(ffi.Pointer<pffi.Utf8> message, int tokenId, int type) {
-  LLModelLibrary.responseCallback(tokenId, message.toDartString());
+// this is called from native cpp thread and arrives on the main dart thread
+void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
+  switch (typeId) {
+    case 10: // prompt
+      print(message.toDartString());
+      break;
+    case 20: // response
+      LLModelLibrary.responseCallback(tokenId, message.toDartString());
+      break;
+    case 30: // recalculate
+      print(message.toDartString());
+
+      // tokenId is 1 or 0
+      LLModelLibrary.responseCallback(
+        tokenId,
+        tokenId == 0
+            ? 'Finished recalculating...'
+            : 'Hold on, recalculating...',
+      );
+      break;
+    case 40: // finished
+      print(message.toDartString());
+      break;
+  }
 }
 
 final nativeCallable = ffi.NativeCallable<
-    ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int64, ffi.Int64)>.listener(
-  callbackSafe,
+    ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>.listener(
+  dartCallback,
 );
 
 class LLModelLibrary {
@@ -94,8 +116,8 @@ class LLModelLibrary {
                   ffi.NativeFunction<
                       ffi.Void Function(
                         ffi.Pointer<pffi.Utf8>,
-                        ffi.Int64 tokenId,
-                        ffi.Int64 type,
+                        ffi.Int32 tokenId,
+                        ffi.Int32 type,
                       )>>
               nativeFunction,
         ),
@@ -104,8 +126,8 @@ class LLModelLibrary {
                   ffi.NativeFunction<
                       ffi.Void Function(
                         ffi.Pointer<pffi.Utf8>,
-                        ffi.Int64 tokenId,
-                        ffi.Int64 type,
+                        ffi.Int32 tokenId,
+                        ffi.Int32 type,
                       )>>
               nativeFunction,
         )>('RegisterDartCallback');

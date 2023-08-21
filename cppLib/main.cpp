@@ -13,7 +13,15 @@
 
 extern "C"
 {
-    typedef void (*Dart_Callback)(const char *);
+    enum
+    {
+        PromptTypeId = 10,
+        ResponseTypeId = 20,
+        RecalculateTypeId = 30,
+        FinishedTypeId = 40,
+    };
+
+    typedef void (*Dart_Callback)(const char *message, int32_t tokenId, int32_t typeId);
 
     Dart_Callback dart_callback;
     atomic_bool running = false;
@@ -35,6 +43,11 @@ extern "C"
 
     bool prompt_function(int32_t token_id)
     {
+        if (running)
+        {
+            dart_callback("prompt_function", token_id, PromptTypeId);
+        }
+
         return running;
     }
 
@@ -50,7 +63,7 @@ extern "C"
                 char *copy = new char[len];
                 strncpy(copy, response, len); // strtok modifies arg 1.
 
-                dart_callback(copy);
+                dart_callback(copy, token_id, ResponseTypeId);
 
                 // std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -67,6 +80,11 @@ extern "C"
 
     bool recalculate_function(bool is_recalculating)
     {
+        if (running)
+        {
+            dart_callback("recalculate_function", is_recalculating ? 1 : 0, RecalculateTypeId);
+        }
+
         return running;
     }
 
