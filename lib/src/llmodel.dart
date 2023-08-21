@@ -1,11 +1,13 @@
+// ignore_for_file: use_setters_to_change_properties, avoid_positional_boolean_parameters
+
 import 'dart:ffi' as ffi;
 import 'dart:io';
-import 'package:ffi/ffi.dart';
 
-import 'llmodel_error.dart';
-import 'llmodel_library.dart';
-import 'llmodel_prompt_config.dart';
-import 'llmodel_prompt_context.dart';
+import 'package:dfc_gpt/src/llmodel_error.dart';
+import 'package:dfc_gpt/src/llmodel_library.dart';
+import 'package:dfc_gpt/src/llmodel_prompt_config.dart';
+import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
+import 'package:ffi/ffi.dart';
 
 class LLModel {
   bool _isLoaded = false;
@@ -17,34 +19,19 @@ class LLModel {
   late final ffi.Pointer<ffi.Pointer<ffi.Int32>> _tokens;
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
-  /// Define a [callback] function for prompts, which returns a bool
-  /// indicating whether the model should keep processing based on a
-  /// given [tokenId].
   static void setPromptCallback(bool Function(int tokenId) callback) =>
       LLModelLibrary.promptCallback = callback;
 
-  /// Define a [callback] function for responses, which returns a bool
-  /// indicating whether the model should keep processing based on a
-  /// given [tokenId] and [response] string.
-  ///
-  /// A [tokenId] of -1 indicates the string is an error string.
   static void setResponseCallback(
-          bool Function(int tokenId, String response) callback) =>
+    bool Function(int tokenId, String response) callback,
+  ) =>
       LLModelLibrary.responseCallback = callback;
 
-  /// Define a [callback] function for recalculation, which returns a bool
-  /// indicating whether the model should keep processing based on whether
-  /// the model [isRecalculating] the context.
   static void setRecalculateCallback(
-          bool Function(bool isRecalculating) callback) =>
+    bool Function(bool isRecalculating) callback,
+  ) =>
       LLModelLibrary.recalculateCallback = callback;
 
-  /// Load the model (.bin) from the [modelPath] and loads required libraries
-  /// (.dll/.dylib/.so) from the [librarySearchPath] folder.
-  ///
-  /// This method must be called before any other interaction with the [LLModel].
-  ///
-  /// Make sure to call the [destroy] method once the work is performed.
   Future<void> load({
     required final String modelPath,
     required final String librarySearchPath,
@@ -85,18 +72,18 @@ class LLModel {
       );
 
       if (!File(modelPath).existsSync()) {
-        throw Exception("Model file does not exist: $modelPath");
+        throw Exception('Model file does not exist: $modelPath');
       }
 
       _model = _library.modelCreate2(
         modelPath: modelPath,
-        buildVariant: "auto",
+        buildVariant: 'auto',
         error: error,
       );
 
       if (_model.address == ffi.nullptr.address) {
         final String errorMsg = error.ref.message.toDartString();
-        throw Exception("Could not load gpt4all backend: $errorMsg");
+        throw Exception('Could not load gpt4all backend: $errorMsg');
       }
 
       _library.loadModel(
@@ -107,7 +94,7 @@ class LLModel {
       if (_library.isModelLoaded(model: _model)) {
         _isLoaded = true;
       } else {
-        throw Exception("The model could not be loaded");
+        throw Exception('The model could not be loaded');
       }
     } finally {
       calloc.free(error);
@@ -126,11 +113,9 @@ class LLModel {
     }
   }
 
-  /// Generate a response to the [prompt] using the model. The
-  /// [LLModelPromptConfig] can be used to optimize the model invocation.
-  Future<void> generate({
+  void generate({
     required String prompt,
-  }) async {
+  }) {
     _library.prompt(
       model: _model,
       prompt: prompt,
@@ -138,9 +123,6 @@ class LLModel {
     );
   }
 
-  /// Destroy the model instance.
-  ///
-  /// Make sure to invoke this method once the model is no longer needed.
   void destroy() {
     if (_isLoaded) {
       _library.modelDestroy(
@@ -148,6 +130,7 @@ class LLModel {
       );
       _isLoaded = false;
     }
+
     calloc.free(_promptContext);
     calloc.free(_tokens);
     calloc.free(_logits);

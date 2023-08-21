@@ -1,4 +1,22 @@
 {
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#823e3e",
+    "titleBar.inactiveBackground": "#823e3e",
+    "titleBar.activeBackground": "#823e3e"
+  },
+  "explorer.compactFolders": false,
+  "workbench.editor.limit.enabled": true,
+  "dart.closingLabels": false,
+  "editor.bracketPairColorization.enabled": true,
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true,
+    "quickfix.insertSemicolon": true,
+    "source.fixAll.eslint": true
+  },
+
+  "editor.formatOnSave": true,
   "files.associations": {
     "cctype": "cpp",
     "clocale": "cpp",

@@ -1,157 +1,191 @@
 // thread example
-#include <iostream> // std::cout
-#include <thread>   // std::thread
+#include <iostream>
+#include <thread>
 #include <chrono>
 #include <sstream>
+
 #include <mutex>
+#include <string.h>
 #include <stdatomic.h>
+#include <functional>
 #include "./chatlib/gpt4all/gpt4all-backend/llmodel_c.h"
+#include "./include/dart_api_dl.h"
 
-// ====================================================
+void (*callback_fp_)(const char *);
+Dart_Port callback_send_port_;
 
-class PrintThread : public std::ostringstream
+#ifdef __cplusplus
+extern "C"
 {
-public:
-    PrintThread() = default;
+#endif
 
-    ~PrintThread()
+    // Initialize `dart_api_dl.h`
+    intptr_t InitDartApiDL(void *data)
     {
-        std::lock_guard<std::mutex> guard(_mutexPrint);
-        std::cout << this->str();
+        return Dart_InitializeApiDL(data);
     }
 
-private:
-    static std::mutex _mutexPrint;
-};
-
-std::mutex PrintThread::_mutexPrint{};
-
-// ====================================================
-
-atomic_bool stop = false;
-
-void foo()
-{
-    PrintThread{} << "in foo \n";
-
-    while (!stop)
+    void RegisterMyCallback(Dart_Port send_port,
+                            void (*callback)(const char *))
     {
-        PrintThread{} << "running\n";
+        callback_fp_ = callback;
+        callback_send_port_ = send_port;
     }
 
-    PrintThread{} << "out foo \n";
-}
+    void threadedPrompt(llmodel_model model, const char *prompt,
+                        llmodel_prompt_context *ctx);
 
-void bar(int x)
-{
-    PrintThread{} << "in bar\n";
+    llmodel_model dfc_llmodel_model_create2(const char *model_path, const char *build_variant, llmodel_error *error)
+    {
+        return llmodel_model_create2(model_path, build_variant, error);
+    }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    void dfc_llmodel_model_destroy(llmodel_model model)
+    {
+        llmodel_model_destroy(model);
+    }
 
-    stop = true;
+    size_t dfc_llmodel_required_mem(llmodel_model model, const char *model_path)
+    {
+        return llmodel_required_mem(model, model_path);
+    }
 
-    PrintThread{} << "out bar \n";
-}
+    bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path)
+    {
+        return llmodel_loadModel(model, model_path);
+    }
 
-int main()
-{
-    std::thread first(foo);     // spawn new thread that calls foo()
-    std::thread second(bar, 0); // spawn new thread that calls bar(0)
+    bool dfc_llmodel_isModelLoaded(llmodel_model model)
+    {
+        return llmodel_isModelLoaded(model);
+    }
 
-    llmodel_set_implementation_search_path("/home/steve/.local/share/re.distantfutu.deckr/gpt/libs/");
+    uint64_t dfc_llmodel_get_state_size(llmodel_model model)
+    {
+        return llmodel_get_state_size(model);
+    }
 
-    PrintThread{} << llmodel_get_implementation_search_path();
-    PrintThread{} << "\n";
+    uint64_t dfc_llmodel_save_state_data(llmodel_model model, uint8_t *dest)
+    {
+        return llmodel_save_state_data(model, dest);
+    }
 
-    PrintThread{} << "main, foo and bar now execute concurrently...\n";
+    uint64_t dfc_llmodel_restore_state_data(llmodel_model model, const uint8_t *src)
+    {
+        return llmodel_restore_state_data(model, src);
+    }
 
-    // synchronize threads:
-    first.join();  // pauses until first finishes
-    second.join(); // pauses until second finishes
+    void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
+                            llmodel_prompt_callback prompt_callback,
+                            llmodel_response_callback response_callback,
+                            llmodel_recalculate_callback recalculate_callback,
+                            llmodel_prompt_context *ctx)
+    {
+        threadedPrompt(model, prompt, ctx);
+    }
 
-    PrintThread{} << "foo and bar completed.\n";
+    float *dfc_llmodel_embedding(llmodel_model model, const char *text, size_t *embedding_size)
+    {
+        return llmodel_embedding(model, text, embedding_size);
+    }
 
-    return 0;
-}
+    void dfc_llmodel_free_embedding(float *ptr)
+    {
+        llmodel_free_embedding(ptr);
+    }
 
-// ====================================================================
-// dfc overrides
+    void dfc_llmodel_setThreadCount(llmodel_model model, int32_t n_threads)
+    {
+        llmodel_setThreadCount(model, n_threads);
+    }
 
-llmodel_model dfc_llmodel_model_create2(const char *model_path, const char *build_variant, llmodel_error *error)
-{
-    return llmodel_model_create2(model_path, build_variant, error);
-}
+    int32_t dfc_llmodel_threadCount(llmodel_model model)
+    {
+        return llmodel_threadCount(model);
+    }
 
-void dfc_llmodel_model_destroy(llmodel_model model)
-{
-    llmodel_model_destroy(model);
-}
+    void dfc_llmodel_set_implementation_search_path(const char *path)
+    {
+        llmodel_set_implementation_search_path(path);
+    }
 
-size_t dfc_llmodel_required_mem(llmodel_model model, const char *model_path)
-{
-    return llmodel_required_mem(model, model_path);
-}
+    const char *dfc_llmodel_get_implementation_search_path()
+    {
+        return llmodel_get_implementation_search_path();
+    }
 
-bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path)
-{
-    return llmodel_loadModel(model, model_path);
-}
+    // =======================================================
 
-bool dfc_llmodel_isModelLoaded_h(llmodel_model model)
-{
-    return llmodel_isModelLoaded(model);
-}
+    // globals
+    atomic_bool running = true;
+    std::mutex threadMutex;
 
-uint64_t dfc_llmodel_get_state_size(llmodel_model model)
-{
-    return llmodel_get_state_size(model);
-}
+    bool prompt_function(int32_t token_id)
+    {
+        return running;
+    }
 
-uint64_t dfc_llmodel_save_state_data(llmodel_model model, uint8_t *dest)
-{
-    return llmodel_save_state_data(model, dest);
-}
+    bool response_function(int32_t token_id, const char *response)
+    {
+        if (running)
+        {
+            intptr_t len = strlen(response) + 1; // Length with \0.
 
-uint64_t dfc_llmodel_restore_state_data(llmodel_model model, const uint8_t *src)
-{
-    return llmodel_restore_state_data(model, src);
-}
+            if (len > 1)
+            {
+                intptr_t len = strlen(response) + 1; // Length with \0.
+                char *copy = new char[len];
+                strncpy(copy, response, len); // strtok modifies arg 1.
 
-void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
-                        llmodel_prompt_callback prompt_callback,
-                        llmodel_response_callback response_callback,
-                        llmodel_recalculate_callback recalculate_callback,
+                callback_fp_(copy);
+
+                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+                // delete[] copy;
+            }
+            else
+            {
+                fprintf(stderr, "empty string? ");
+            }
+        }
+
+        return running;
+    }
+
+    bool recalculate_function(bool is_recalculating)
+    {
+        return running;
+    }
+
+    void promptThread(llmodel_model model, const char *prompt,
+                      llmodel_prompt_context *ctx)
+    {
+        fprintf(stderr, "############ prompt: %s ----\n", prompt);
+
+        llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, ctx);
+
+        threadMutex.unlock();
+
+        fprintf(stderr, "unlocking\n");
+    }
+
+    void threadedPrompt(llmodel_model model, const char *prompt,
                         llmodel_prompt_context *ctx)
-{
-    return llmodel_prompt(model, prompt, prompt_callback, response_callback, recalculate_callback, ctx);
-}
+    {
+        fprintf(stderr, "waiting\n");
 
-float *dfc_llmodel_embedding(llmodel_model model, const char *text, size_t *embedding_size)
-{
-    return llmodel_embedding(model, text, embedding_size);
-}
+        running = false;
+        threadMutex.lock();
+        running = true;
 
-void dfc_llmodel_free_embedding(float *ptr)
-{
-    llmodel_free_embedding(ptr);
-}
+        fprintf(stderr, "ready\n");
 
-void dfc_llmodel_setThreadCount(llmodel_model model, int32_t n_threads)
-{
-    llmodel_setThreadCount(model, n_threads);
-}
+        std::thread t = std::thread(promptThread, model, prompt, ctx);
 
-int32_t dfc_llmodel_threadCount(llmodel_model model)
-{
-    return llmodel_threadCount(model);
-}
+        fprintf(stderr, "detach  \n");
+        t.join();
+    }
 
-void dfc_llmodel_set_implementation_search_path(const char *path)
-{
-    llmodel_set_implementation_search_path(path);
+#ifdef __cplusplus
 }
-
-const char *dfc_llmodel_get_implementation_search_path()
-{
-    return llmodel_get_implementation_search_path();
-}
+#endif
