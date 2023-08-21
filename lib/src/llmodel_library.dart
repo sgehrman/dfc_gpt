@@ -2,7 +2,6 @@
 
 import 'dart:ffi' as ffi;
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:dfc_gpt/src/llmodel_error.dart';
 import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
@@ -67,14 +66,12 @@ typedef LLModelSetImplementationSearchPath = void Function(
   ffi.Pointer<pffi.Utf8>,
 );
 
-void callbackSafe(ffi.Pointer<pffi.Utf8> a) {
-  final duh = a.toDartString();
-
-  LLModelLibrary.responseCallback(22, duh);
+void callbackSafe(ffi.Pointer<pffi.Utf8> message, int tokenId, int type) {
+  LLModelLibrary.responseCallback(tokenId, message.toDartString());
 }
 
-ffi.NativeCallable<ffi.Void Function(ffi.Pointer<pffi.Utf8>)> nc =
-    ffi.NativeCallable<ffi.Void Function(ffi.Pointer<pffi.Utf8>)>.listener(
+final nativeCallable = ffi.NativeCallable<
+    ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int64, ffi.Int64)>.listener(
   callbackSafe,
 );
 
@@ -91,24 +88,29 @@ class LLModelLibrary {
 
     initializeApi(ffi.NativeApi.initializeApiDLData);
 
-    final interactiveCppRequests = ReceivePort();
-    final int nativePort = interactiveCppRequests.sendPort.nativePort;
-
     final registerCallback = _dynamicLibrary.lookupFunction<
         ffi.Void Function(
-          ffi.Int64 sendPort,
           ffi.Pointer<
-                  ffi.NativeFunction<ffi.Void Function(ffi.Pointer<pffi.Utf8>)>>
-              functionPointer,
+                  ffi.NativeFunction<
+                      ffi.Void Function(
+                        ffi.Pointer<pffi.Utf8>,
+                        ffi.Int64 tokenId,
+                        ffi.Int64 type,
+                      )>>
+              nativeFunction,
         ),
         void Function(
-          int sendPort,
           ffi.Pointer<
-                  ffi.NativeFunction<ffi.Void Function(ffi.Pointer<pffi.Utf8>)>>
-              functionPointer,
-        )>('RegisterMyCallback');
+                  ffi.NativeFunction<
+                      ffi.Void Function(
+                        ffi.Pointer<pffi.Utf8>,
+                        ffi.Int64 tokenId,
+                        ffi.Int64 type,
+                      )>>
+              nativeFunction,
+        )>('RegisterDartCallback');
 
-    registerCallback(nativePort, nc.nativeFunction);
+    registerCallback(nativeCallable.nativeFunction);
   }
 
   static const bool except = false;

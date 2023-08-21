@@ -11,29 +11,105 @@
 #include "./chatlib/gpt4all/gpt4all-backend/llmodel_c.h"
 #include "./include/dart_api_dl.h"
 
-void (*callback_fp_)(const char *);
-Dart_Port callback_send_port_;
-
-#ifdef __cplusplus
 extern "C"
 {
-#endif
+    typedef void (*Dart_Callback)(const char *);
 
-    // Initialize `dart_api_dl.h`
+    Dart_Callback dart_callback;
+    atomic_bool running = false;
+    std::mutex threadMutex;
+
     intptr_t InitDartApiDL(void *data)
     {
+        // Initialize `dart_api_dl.h`
         return Dart_InitializeApiDL(data);
     }
 
-    void RegisterMyCallback(Dart_Port send_port,
-                            void (*callback)(const char *))
+    void RegisterDartCallback(Dart_Callback callback)
     {
-        callback_fp_ = callback;
-        callback_send_port_ = send_port;
+        dart_callback = callback;
+    }
+
+    // =======================================================
+    // llmodel_prompt callbacks
+
+    bool prompt_function(int32_t token_id)
+    {
+        return running;
+    }
+
+    bool response_function(int32_t token_id, const char *response)
+    {
+        if (running)
+        {
+            intptr_t len = strlen(response) + 1; // Length with \0.
+
+            if (len > 1)
+            {
+                intptr_t len = strlen(response) + 1; // Length with \0.
+                char *copy = new char[len];
+                strncpy(copy, response, len); // strtok modifies arg 1.
+
+                dart_callback(copy);
+
+                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+                // delete[] copy;
+            }
+            else
+            {
+                fprintf(stderr, "empty string? ");
+            }
+        }
+
+        return running;
+    }
+
+    bool recalculate_function(bool is_recalculating)
+    {
+        return running;
+    }
+
+    // ==========================================================
+    // thread function
+
+    void promptThread(llmodel_model model, const char *prompt,
+                      llmodel_prompt_context *ctx)
+    {
+        try
+        {
+            // this solved a crash, need to copy the ctx and use it for the next
+            // query
+            llmodel_prompt_context copyCtx = *ctx;
+
+            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, &copyCtx);
+        }
+        catch (const std::exception &e)
+        {
+            fprintf(stderr, "llmodel_prompt bombed: %s", e.what());
+        }
+        catch (...)
+        {
+            fprintf(stderr, "llmodel_prompt bombed");
+        }
+
+        threadMutex.unlock();
     }
 
     void threadedPrompt(llmodel_model model, const char *prompt,
-                        llmodel_prompt_context *ctx);
+                        llmodel_prompt_context *ctx)
+    {
+        running = false;
+        threadMutex.lock();
+        running = true;
+
+        std::thread t = std::thread(promptThread, model, prompt, ctx);
+
+        t.detach();
+    }
+
+    // ===============================================================
+    // wrapper functions
 
     llmodel_model dfc_llmodel_model_create2(const char *model_path, const char *build_variant, llmodel_error *error)
     {
@@ -114,86 +190,4 @@ extern "C"
         return llmodel_get_implementation_search_path();
     }
 
-    // =======================================================
-
-    // globals
-    atomic_bool running = true;
-    std::mutex threadMutex;
-
-    bool prompt_function(int32_t token_id)
-    {
-        return running;
-    }
-
-    bool response_function(int32_t token_id, const char *response)
-    {
-        if (running)
-        {
-            intptr_t len = strlen(response) + 1; // Length with \0.
-
-            if (len > 1)
-            {
-                intptr_t len = strlen(response) + 1; // Length with \0.
-                char *copy = new char[len];
-                strncpy(copy, response, len); // strtok modifies arg 1.
-
-                callback_fp_(copy);
-
-                // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-                // delete[] copy;
-            }
-            else
-            {
-                fprintf(stderr, "empty string? ");
-            }
-        }
-
-        return running;
-    }
-
-    bool recalculate_function(bool is_recalculating)
-    {
-        return running;
-    }
-
-    void promptThread(llmodel_model model, const char *prompt,
-                      llmodel_prompt_context *ctx)
-    {
-
-        try
-        {
-            // this solved a crash, need to copy the ctx and use it for the next
-            // query
-            llmodel_prompt_context copyCtx = *ctx;
-
-            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, &copyCtx);
-        }
-        catch (const std::exception &e)
-        {
-            fprintf(stderr, "llmodel_prompt bombed: %s", e.what());
-        }
-        catch (...)
-        {
-            fprintf(stderr, "llmodel_prompt bombed");
-        }
-
-        threadMutex.unlock();
-    }
-
-    void threadedPrompt(llmodel_model model, const char *prompt,
-                        llmodel_prompt_context *ctx)
-    {
-
-        running = false;
-        threadMutex.lock();
-        running = true;
-
-        std::thread t = std::thread(promptThread, model, prompt, ctx);
-
-        t.detach();
-    }
-
-#ifdef __cplusplus
-}
-#endif
+} // extern "C"
