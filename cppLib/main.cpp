@@ -27,6 +27,11 @@ extern "C"
     atomic_bool running = false;
     std::mutex threadMutex;
 
+    void log(const char *message)
+    {
+        fprintf(stderr, "%s\n", message);
+    }
+
     const char *copyString(const char *str)
     {
         intptr_t len = strlen(str) + 1; // Length with \0.
@@ -62,6 +67,8 @@ extern "C"
 
     bool response_function(int32_t token_id, const char *response)
     {
+        log("in response_function");
+
         if (running)
         {
             intptr_t len = strlen(response) + 1; // Length with \0.
@@ -108,6 +115,8 @@ extern "C"
     void promptThread(llmodel_model model, const char *prompt,
                       llmodel_prompt_context *ctx)
     {
+        log("in promptThread");
+
         try
         {
             // this solved a crash, need to copy the ctx and use it for the next
@@ -125,12 +134,16 @@ extern "C"
             fprintf(stderr, "llmodel_prompt bombed");
         }
 
+        log("out promptThread");
+
         threadMutex.unlock();
     }
 
     void threadedPrompt(llmodel_model model, const char *prompt,
                         llmodel_prompt_context *ctx)
     {
+        log("in threadedPrompt");
+
         running = false;
         threadMutex.lock();
         running = true;
@@ -138,6 +151,8 @@ extern "C"
         std::thread t = std::thread(promptThread, model, prompt, ctx);
 
         t.detach();
+
+        log("out threadedPrompt");
     }
 
     // ===============================================================
