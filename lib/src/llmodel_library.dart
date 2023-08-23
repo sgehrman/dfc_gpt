@@ -70,13 +70,13 @@ typedef LLModelSetImplementationSearchPath = void Function(
 void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
   switch (typeId) {
     case 10: // prompt
-      print(message.toDartString());
+      // print(message.toDartString());
       break;
     case 20: // response
       LLModelLibrary.responseCallback(tokenId, message.toDartString());
       break;
     case 30: // recalculate
-      print(message.toDartString());
+      // print(message.toDartString());
 
       // tokenId is 1 or 0
       LLModelLibrary.responseCallback(
@@ -87,7 +87,7 @@ void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
       );
       break;
     case 40: // finished
-      print(message.toDartString());
+      // print(message.toDartString());
       break;
   }
 }

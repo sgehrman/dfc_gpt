@@ -4,15 +4,6 @@ paths in build functions. make dart tools?
 
 need a way to version the libs, replace on updates
 
-server download list
+handle download errors.
 
-download progress provider?
-
-chat provider? saves chat between dialog open close
-
-downloader ui code
-
-an empty file is created? can we turn taht off?
-
-pause, cancel buttons
-progress bars, pause etc.
+getting model downloaded on a cancel
