@@ -7,3 +7,5 @@ need a way to version the libs, replace on updates
 handle download errors.
 
 getting model downloaded on a cancel
+
+toast when dialog is closed

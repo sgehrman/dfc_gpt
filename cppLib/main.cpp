@@ -27,6 +27,15 @@ extern "C"
     atomic_bool running = false;
     std::mutex threadMutex;
 
+    const char *copyString(const char *str)
+    {
+        intptr_t len = strlen(str) + 1; // Length with \0.
+        char *copy = new char[len];
+        strncpy(copy, str, len); // strtok modifies arg 1.
+
+        return copy;
+    }
+
     intptr_t InitDartApiDL(void *data)
     {
         // Initialize `dart_api_dl.h`
@@ -59,10 +68,7 @@ extern "C"
 
             if (len > 1)
             {
-                intptr_t len = strlen(response) + 1; // Length with \0.
-                char *copy = new char[len];
-                strncpy(copy, response, len); // strtok modifies arg 1.
-
+                const char *copy = copyString(response);
                 dart_callback(copy, token_id, ResponseTypeId);
 
                 // std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -146,7 +152,10 @@ extern "C"
 
     bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path)
     {
-        return llmodel_loadModel(model, model_path);
+        // saw it crash here, testing if copying the path helps.
+        const char *model_path_copy = copyString(model_path);
+
+        return llmodel_loadModel(model, model_path_copy);
     }
 
     bool dfc_llmodel_isModelLoaded(llmodel_model model)
