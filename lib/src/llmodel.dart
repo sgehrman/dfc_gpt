@@ -32,6 +32,11 @@ class LLModel {
   ) =>
       LLModelLibrary.recalculateCallback = callback;
 
+  static void setShutdownGracefullyCallback(
+    void Function() callback,
+  ) =>
+      LLModelLibrary.shutdownGracefullyCallback = callback;
+
   Future<void> load({
     required final String modelPath,
     required final String librarySearchPath,

@@ -66,6 +66,9 @@ typedef LLModelSetImplementationSearchPath = void Function(
   ffi.Pointer<pffi.Utf8>,
 );
 
+typedef llmodel_shutdown_gracefully_func = ffi.Void Function();
+typedef LLModelShutdownGracefully = void Function();
+
 // this is called from native cpp thread and arrives on the main dart thread
 void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
   switch (typeId) {
@@ -86,8 +89,11 @@ void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
             : 'Hold on, recalculating...',
       );
       break;
-    case 40: // finished
-      // print(message.toDartString());
+    case 40: // ShutdownTypeId
+      // called after a shutdown_gracefully call
+      // tell lib to now dispose the model
+      LLModelLibrary.shutdownGracefullyCallback();
+
       break;
   }
 }
@@ -152,6 +158,8 @@ class LLModelLibrary {
   static bool Function(bool) recalculateCallback =
       (bool isRecalculating) => isRecalculating;
 
+  static void Function() shutdownGracefullyCallback = () {};
+
   late final ffi.DynamicLibrary _dynamicLibrary;
 
   // Dart methods binding to native methods
@@ -162,6 +170,7 @@ class LLModelLibrary {
   late final LLModelPrompt _llModelPrompt;
   late final LLModelSetImplementationSearchPath
       _llModelSetImplementationSearchPath;
+  late final LLModelShutdownGracefully _llModelShutdownGracefully;
 
   void _initializeMethodBindings() {
     _llModelIsModelLoaded = _dynamicLibrary
@@ -198,6 +207,12 @@ class LLModelLibrary {
           'dfc_llmodel_set_implementation_search_path',
         )
         .asFunction();
+
+    _llModelShutdownGracefully = _dynamicLibrary
+        .lookup<ffi.NativeFunction<llmodel_shutdown_gracefully_func>>(
+          'dfc_shutdown_gracefully',
+        )
+        .asFunction();
   }
 
   bool isModelLoaded({
@@ -223,17 +238,24 @@ class LLModelLibrary {
     required ffi.Pointer<LLModelError> error,
   }) {
     final ffi.Pointer<pffi.Utf8> modelPathNative = modelPath.toNativeUtf8();
+
     final ffi.Pointer<pffi.Utf8> buildVariantNative =
         buildVariant.toNativeUtf8();
+
     final ffi.Pointer result = _llModelModelCreate2(
       modelPath.toNativeUtf8(),
       buildVariant.toNativeUtf8(),
       error,
     );
+
     pffi.malloc.free(modelPathNative);
     pffi.malloc.free(buildVariantNative);
 
     return result;
+  }
+
+  void shutdown() {
+    _llModelShutdownGracefully();
   }
 
   void modelDestroy({

@@ -18,7 +18,7 @@ extern "C"
         PromptTypeId = 10,
         ResponseTypeId = 20,
         RecalculateTypeId = 30,
-        FinishedTypeId = 40,
+        ShutdownTypeId = 40,
     };
 
     typedef void (*Dart_Callback)(const char *message, int32_t tokenId, int32_t typeId);
@@ -92,6 +92,14 @@ extern "C"
         }
 
         return running;
+    }
+
+    void dfc_shutdown_gracefully()
+    {
+        running = false;
+        threadMutex.lock();
+
+        dart_callback("shutdown_gracefully", 0, ShutdownTypeId);
     }
 
     // ==========================================================

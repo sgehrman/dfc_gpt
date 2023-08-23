@@ -9,3 +9,9 @@ handle download errors.
 getting model downloaded on a cancel
 
 toast when dialog is closed
+
+switching models is crashing.
+
+stop spinner if we get back blank results?
+
+are the gpt isolates being killed?
