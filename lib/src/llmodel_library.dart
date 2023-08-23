@@ -71,12 +71,21 @@ typedef LLModelShutdownGracefully = void Function();
 
 // this is called from native cpp thread and arrives on the main dart thread
 void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
+  String dartMessage = 'bad characters';
+
+  // this can crash? on boundary of utf8?
+  try {
+    dartMessage = message.toDartString();
+  } catch (err) {
+    print('Dart string error: $err');
+  }
+
   switch (typeId) {
     case 10: // prompt
       // print(message.toDartString());
       break;
     case 20: // response
-      LLModelLibrary.responseCallback(tokenId, message.toDartString());
+      LLModelLibrary.responseCallback(tokenId, dartMessage);
       break;
     case 30: // recalculate
       // print(message.toDartString());

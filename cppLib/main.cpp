@@ -25,11 +25,15 @@ extern "C"
 
     Dart_Callback dart_callback;
     atomic_bool running = false;
+    atomic_int responses = 0;
     std::mutex threadMutex;
+    std::mutex fprintMutex;
 
-    void log(const char *message)
+    void llog(const char *message)
     {
-        fprintf(stderr, "%s\n", message);
+        fprintMutex.lock();
+        fprintf(stderr, "llog: %s\n", message);
+        fprintMutex.unlock();
     }
 
     const char *copyString(const char *str)
@@ -67,7 +71,8 @@ extern "C"
 
     bool response_function(int32_t token_id, const char *response)
     {
-        log("in response_function");
+        llog("in response_function");
+        responses += 1;
 
         if (running)
         {
@@ -84,7 +89,7 @@ extern "C"
             }
             else
             {
-                fprintf(stderr, "empty string? ");
+                llog("empty string? ");
             }
         }
 
@@ -107,6 +112,7 @@ extern "C"
         threadMutex.lock();
 
         dart_callback("shutdown_gracefully", 0, ShutdownTypeId);
+        threadMutex.unlock();
     }
 
     // ==========================================================
@@ -115,7 +121,8 @@ extern "C"
     void promptThread(llmodel_model model, const char *prompt,
                       llmodel_prompt_context *ctx)
     {
-        log("in promptThread");
+        llog("in promptThread");
+        responses = 0;
 
         try
         {
@@ -123,18 +130,30 @@ extern "C"
             // query
             llmodel_prompt_context copyCtx = *ctx;
 
-            llmodel_prompt(model, prompt, prompt_function, response_function, recalculate_function, &copyCtx);
+            const char *promptCopy = copyString(prompt);
+            llog(promptCopy);
+
+            llmodel_prompt(model, promptCopy, prompt_function, response_function, recalculate_function, &copyCtx);
+
+            // some questions get nothing, send something back
+            if (responses == 0)
+            {
+                dart_callback("Sorry, I can't help with that.", 0, ResponseTypeId);
+            }
         }
         catch (const std::exception &e)
         {
-            fprintf(stderr, "llmodel_prompt bombed: %s", e.what());
+            llog("llmodel_prompt bombed"); //  %s", e.what());
         }
         catch (...)
         {
-            fprintf(stderr, "llmodel_prompt bombed");
+            llog("llmodel_prompt bombed");
         }
 
-        log("out promptThread");
+        llog("out promptThread");
+
+        // give time before we exit the thread?
+        std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
         threadMutex.unlock();
     }
@@ -142,17 +161,18 @@ extern "C"
     void threadedPrompt(llmodel_model model, const char *prompt,
                         llmodel_prompt_context *ctx)
     {
-        log("in threadedPrompt");
+        llog("in threadedPrompt");
 
         running = false;
         threadMutex.lock();
         running = true;
+        llog("in threadedPrompt2");
 
         std::thread t = std::thread(promptThread, model, prompt, ctx);
 
         t.detach();
 
-        log("out threadedPrompt");
+        llog("out threadedPrompt");
     }
 
     // ===============================================================

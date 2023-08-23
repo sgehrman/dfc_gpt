@@ -15,3 +15,11 @@ switching models is crashing.
 stop spinner if we get back blank results?
 
 are the gpt isolates being killed?
+
+orca mini what is your specialty?
+
+cutting off before done?
+
+trime prompt
+
+help tips on model menu
