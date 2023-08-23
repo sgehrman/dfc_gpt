@@ -254,7 +254,7 @@ class LLModelLibrary {
     return result;
   }
 
-  void shutdown() {
+  void shutdownGracefully() {
     _llModelShutdownGracefully();
   }
 

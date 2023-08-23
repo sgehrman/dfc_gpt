@@ -127,6 +127,11 @@ class LLModel {
     );
   }
 
+  void shutdownGracefully() {
+    _library.shutdownGracefully();
+  }
+
+  //  only call this after shutdownGracefullyCallback
   void destroy() {
     if (_isLoaded) {
       _library.modelDestroy(
