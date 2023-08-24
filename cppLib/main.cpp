@@ -31,9 +31,9 @@ extern "C"
 
     void llog(const char *message)
     {
-        fprintMutex.lock();
-        fprintf(stderr, "llog: %s\n", message);
-        fprintMutex.unlock();
+        // fprintMutex.lock();
+        // fprintf(stderr, "llog: %s\n", message);
+        // fprintMutex.unlock();
     }
 
     const char *copyString(const char *str)
