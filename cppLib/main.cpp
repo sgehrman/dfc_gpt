@@ -112,6 +112,12 @@ extern "C"
         threadMutex.lock();
 
         dart_callback("shutdown_gracefully", 0, ShutdownTypeId);
+
+        // getting mystery crashes, I'm guessing this dart_callback is still in flight
+        // and crashes if this thread dies?
+        // give time before we exit the thread?
+        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+
         threadMutex.unlock();
     }
 
