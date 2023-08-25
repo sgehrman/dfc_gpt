@@ -11,3 +11,5 @@ toast when dialog is closed
 are the gpt isolates being killed?
 
 orca mini what is your specialty?
+
+must call close() on native callback
