@@ -10,9 +10,9 @@ import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
-  LLModel({required this.reponseCallback});
+  LLModel({required this.responseCallback});
 
-  final void Function(int tokenId, String response) reponseCallback;
+  final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
 
