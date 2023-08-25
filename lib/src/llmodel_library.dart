@@ -212,8 +212,8 @@ class LLModelLibrary {
         buildVariant.toNativeUtf8();
 
     final ffi.Pointer result = _llModelModelCreate2(
-      modelPath.toNativeUtf8(),
-      buildVariant.toNativeUtf8(),
+      modelPathNative,
+      buildVariantNative,
       error,
     );
 
@@ -244,7 +244,7 @@ class LLModelLibrary {
       promptNative,
       promptContext,
     );
-    // pffi.malloc.free(promptNative);
+    pffi.malloc.free(promptNative);
   }
 
   void setImplementationSearchPath({

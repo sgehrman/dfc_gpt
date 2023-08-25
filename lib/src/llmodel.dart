@@ -23,8 +23,6 @@ class LLModel {
   late final LLModelLibrary _library;
   late final ffi.Pointer _model;
 
-  late final ffi.Pointer<ffi.Pointer<ffi.Float>> _logits;
-  late final ffi.Pointer<ffi.Pointer<ffi.Int32>> _tokens;
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
   Future<void> load({
@@ -37,14 +35,12 @@ class LLModel {
     final ffi.Pointer<LLModelError> error = calloc<LLModelError>();
 
     try {
-      _logits = calloc<ffi.Pointer<ffi.Float>>();
-      _tokens = calloc<ffi.Pointer<ffi.Int32>>();
       _promptContext = calloc<llmodel_prompt_context>();
       _promptContext.ref
-        ..logits = _logits.value // generationConfig.logits
-        ..logits_size = 0 // generationConfig.logits.length
-        ..tokens = _tokens.value // generationConfig.tokens
-        ..tokens_size = 0 // generationConfig.tokens.length
+        ..logits = ffi.nullptr
+        ..logits_size = 0
+        ..tokens = ffi.nullptr
+        ..tokens_size = 0
         ..n_past = promptConfig.nPast
         ..n_ctx = promptConfig.nCtx
         ..n_predict = promptConfig.nPredict
@@ -135,8 +131,6 @@ class LLModel {
     }
 
     calloc.free(_promptContext);
-    calloc.free(_tokens);
-    calloc.free(_logits);
 
     print('## out llmodel dispose');
   }
