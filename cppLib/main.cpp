@@ -100,7 +100,7 @@ extern "C"
     {
         if (running)
         {
-            dart_callback("recalculate_function", is_recalculating ? 1 : 0, RecalculateTypeId);
+            dart_callback(is_recalculating ? " recalculating... " : " finished recalculating... ", 0, RecalculateTypeId);
         }
 
         return running;

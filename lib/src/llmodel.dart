@@ -60,7 +60,7 @@ class LLModel {
       _library = LLModelLibrary(
         // the dfc-gpt.so lib wraps the main libllmodel.so lib',
         pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
-        reponseCallback: reponseCallback,
+        reponseCallback: responseCallback,
       );
 
       _library.setImplementationSearchPath(

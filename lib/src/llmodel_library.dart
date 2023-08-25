@@ -1,6 +1,9 @@
 // ignore_for_file: camel_case_types, avoid_positional_boolean_parameters
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi' as ffi;
+import 'dart:ffi';
 
 import 'package:dfc_gpt/src/llmodel_error.dart';
 import 'package:dfc_gpt/src/llmodel_library_types.dart';
@@ -9,32 +12,22 @@ import 'package:ffi/ffi.dart' as pffi;
 
 // this is called from native cpp thread and arrives on the main dart thread
 void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
-  String dartMessage = 'bad characters';
-
-  // this can crash? on boundary of utf8?
-  try {
-    dartMessage = message.toDartString();
-  } catch (err) {
-    print('Dart string error: $err');
-  }
-
   switch (typeId) {
     case 10: // prompt
       // print(message.toDartString());
       break;
     case 20: // response
-      print('$tokenId, $dartMessage');
+      libraryInstance?.processDataFromCallback(
+        tokenId: tokenId,
+        message: message,
+      );
       break;
     case 30: // recalculate
-      // print(message.toDartString());
+      libraryInstance?.processDataFromCallback(
+        tokenId: tokenId,
+        message: message,
+      );
 
-      // tokenId is 1 or 0
-      // LLModelLibrary.responseCallback(
-      //   tokenId,
-      //   tokenId == 0
-      //       ? 'Finished recalculating...'
-      //       : 'Hold on, recalculating...',
-      // );
       break;
     case 40: // ShutdownTypeId
       // called after a shutdown_gracefully call
@@ -50,11 +43,61 @@ final nativeCallable = ffi.NativeCallable<
   dartCallback,
 );
 
+// =======================================================================
+
+// global for callback
+LLModelLibrary? libraryInstance;
+
+// =======================================================================
+
 class LLModelLibrary {
   LLModelLibrary({
     required this.pathToLibrary,
     required this.reponseCallback,
   }) {
+    // a global singleton.  should only be called once per isolate
+    if (libraryInstance != null) {
+      print(
+        'libraryInstance should not be set twice, new request should be in a new isolate.',
+      );
+    }
+    libraryInstance = this;
+
+    _load();
+
+    callbackStreamController = StreamController<List<int>>();
+
+    final utf8Stream = callbackStreamController.stream.transform(utf8.decoder);
+
+    utf8Stream.listen((event) {
+      reponseCallback(0, event);
+    });
+  }
+
+  late StreamController<List<int>> callbackStreamController;
+
+  final String pathToLibrary;
+  final void Function(int tokenId, String response) reponseCallback;
+
+  static void Function() shutdownGracefullyCallback = () {};
+
+  late final ffi.DynamicLibrary _dynamicLibrary;
+
+  // Dart methods binding to native methods
+  late final LLModelIsModelLoaded _llModelIsModelLoaded;
+  late final LLModelLoadModel _llModelLoadModel;
+  late final LLModelModelCreate2 _llModelModelCreate2;
+  late final LLModelModelDestroy _llModelModelDestroy;
+  late final LLModelPrompt _llModelPrompt;
+  late final LLModelSetImplementationSearchPath
+      _llModelSetImplementationSearchPath;
+  late final LLModelShutdownGracefully _llModelShutdownGracefully;
+
+  void dispose() {
+    callbackStreamController.close();
+  }
+
+  void _load() {
     _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
     _initializeMethodBindings();
 
@@ -88,23 +131,6 @@ class LLModelLibrary {
 
     registerCallback(nativeCallable.nativeFunction);
   }
-
-  final String pathToLibrary;
-  final void Function(int tokenId, String response) reponseCallback;
-
-  static void Function() shutdownGracefullyCallback = () {};
-
-  late final ffi.DynamicLibrary _dynamicLibrary;
-
-  // Dart methods binding to native methods
-  late final LLModelIsModelLoaded _llModelIsModelLoaded;
-  late final LLModelLoadModel _llModelLoadModel;
-  late final LLModelModelCreate2 _llModelModelCreate2;
-  late final LLModelModelDestroy _llModelModelDestroy;
-  late final LLModelPrompt _llModelPrompt;
-  late final LLModelSetImplementationSearchPath
-      _llModelSetImplementationSearchPath;
-  late final LLModelShutdownGracefully _llModelShutdownGracefully;
 
   void _initializeMethodBindings() {
     _llModelIsModelLoaded = _dynamicLibrary
@@ -218,5 +244,32 @@ class LLModelLibrary {
     final ffi.Pointer<pffi.Utf8> pathNative = path.toNativeUtf8();
     _llModelSetImplementationSearchPath(path.toNativeUtf8());
     pffi.malloc.free(pathNative);
+  }
+
+  // =================================================================
+  // from callback
+
+  void processDataFromCallback({
+    required int tokenId,
+    required ffi.Pointer<pffi.Utf8> message,
+  }) {
+    // utf failing. wizardlm superhot, type hello
+    // file.openRead().transform(utf8.decoder)
+    // https://api.dart.dev/stable/3.1.0/dart-async/Stream/map.html
+
+    // file.openRead().transform(utf8.decoder)
+
+    int len(Pointer<Uint8> codeUnits) {
+      var length = 0;
+
+      while (codeUnits[length] != 0) {
+        length++;
+      }
+
+      return length;
+    }
+
+    final codeUnits = message.cast<Uint8>();
+    callbackStreamController.add(codeUnits.asTypedList(len(codeUnits)));
   }
 }
