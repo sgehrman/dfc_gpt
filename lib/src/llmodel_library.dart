@@ -10,40 +10,6 @@ import 'package:dfc_gpt/src/llmodel_library_types.dart';
 import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart' as pffi;
 
-// this is called from native cpp thread and arrives on the main dart thread
-void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
-  switch (typeId) {
-    case 10: // prompt
-      // print(message.toDartString());
-      break;
-    case 20: // response
-      libraryInstance?.processDataFromCallback(
-        tokenId: tokenId,
-        message: message,
-      );
-      break;
-    case 30: // recalculate
-      libraryInstance?.processDataFromCallback(
-        tokenId: tokenId,
-        message: message,
-      );
-
-      break;
-    case 40: // ShutdownTypeId
-      // called after a shutdown_gracefully call
-      // tell lib to now dispose the model
-
-      libraryInstance?.shutdown();
-
-      break;
-  }
-}
-
-final nativeCallable = ffi.NativeCallable<
-    ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>.listener(
-  dartCallback,
-);
-
 // =======================================================================
 
 // global for callback
@@ -65,6 +31,15 @@ class LLModelLibrary {
     }
     libraryInstance = this;
 
+    nativeCallable = ffi.NativeCallable<
+        ffi.Void Function(
+          ffi.Pointer<pffi.Utf8>,
+          ffi.Int32,
+          ffi.Int32,
+        )>.listener(
+      dartCallback,
+    );
+
     _load();
 
     callbackStreamController = StreamController<List<int>>();
@@ -81,6 +56,9 @@ class LLModelLibrary {
   final String pathToLibrary;
   final void Function() shutdownCallback;
   final void Function(int tokenId, String response) reponseCallback;
+  late ffi.NativeCallable<
+          ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>
+      nativeCallable;
 
   late final ffi.DynamicLibrary _dynamicLibrary;
 
@@ -102,8 +80,38 @@ class LLModelLibrary {
     // this keeps the isolate alive, must close
     nativeCallable.close();
     _dynamicLibrary.close();
+    libraryInstance = null;
 
     print('## out LLModelLibrary dispose');
+  }
+
+  // this is called from native cpp thread and arrives on the main dart thread
+  void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
+    switch (typeId) {
+      case 10: // prompt
+        // print(message.toDartString());
+        break;
+      case 20: // response
+        processDataFromCallback(
+          tokenId: tokenId,
+          message: message,
+        );
+        break;
+      case 30: // recalculate
+        processDataFromCallback(
+          tokenId: tokenId,
+          message: message,
+        );
+
+        break;
+      case 40: // ShutdownTypeId
+        // called after a shutdown_gracefully call
+        // tell lib to now dispose the model
+
+        shutdown();
+
+        break;
+    }
   }
 
   void _load() {
