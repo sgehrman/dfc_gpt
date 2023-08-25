@@ -228,9 +228,6 @@ extern "C"
     }
 
     void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
-                            llmodel_prompt_callback prompt_callback,
-                            llmodel_response_callback response_callback,
-                            llmodel_recalculate_callback recalculate_callback,
                             llmodel_prompt_context *ctx)
     {
         threadedPrompt(model, prompt, ctx);

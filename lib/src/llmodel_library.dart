@@ -1,7 +1,6 @@
 // ignore_for_file: camel_case_types, avoid_positional_boolean_parameters
 
 import 'dart:ffi' as ffi;
-import 'dart:io';
 
 import 'package:dfc_gpt/src/llmodel_error.dart';
 import 'package:dfc_gpt/src/llmodel_library_types.dart';
@@ -24,18 +23,18 @@ void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
       // print(message.toDartString());
       break;
     case 20: // response
-      LLModelLibrary.responseCallback(tokenId, dartMessage);
+      print('$tokenId, $dartMessage');
       break;
     case 30: // recalculate
       // print(message.toDartString());
 
       // tokenId is 1 or 0
-      LLModelLibrary.responseCallback(
-        tokenId,
-        tokenId == 0
-            ? 'Finished recalculating...'
-            : 'Hold on, recalculating...',
-      );
+      // LLModelLibrary.responseCallback(
+      //   tokenId,
+      //   tokenId == 0
+      //       ? 'Finished recalculating...'
+      //       : 'Hold on, recalculating...',
+      // );
       break;
     case 40: // ShutdownTypeId
       // called after a shutdown_gracefully call
@@ -53,7 +52,8 @@ final nativeCallable = ffi.NativeCallable<
 
 class LLModelLibrary {
   LLModelLibrary({
-    required String pathToLibrary,
+    required this.pathToLibrary,
+    required this.reponseCallback,
   }) {
     _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
     _initializeMethodBindings();
@@ -89,22 +89,8 @@ class LLModelLibrary {
     registerCallback(nativeCallable.nativeFunction);
   }
 
-  static const bool except = false;
-
-  static bool Function(int) promptCallback = (int tokenId) => true;
-  static bool Function(int, String) responseCallback =
-      (int tokenId, String response) {
-    if (tokenId == -1) {
-      stderr.write(response);
-    } else {
-      stdout.write(response);
-    }
-
-    return true;
-  };
-
-  static bool Function(bool) recalculateCallback =
-      (bool isRecalculating) => isRecalculating;
+  final String pathToLibrary;
+  final void Function(int tokenId, String response) reponseCallback;
 
   static void Function() shutdownGracefullyCallback = () {};
 
@@ -221,34 +207,10 @@ class LLModelLibrary {
     _llModelPrompt(
       model,
       promptNative,
-      ffi.Pointer.fromFunction<llmodel_prompt_callback_func>(
-        _promptCallback,
-        except,
-      ),
-      ffi.Pointer.fromFunction<llmodel_response_callback_func>(
-        _responseCallback,
-        except,
-      ),
-      ffi.Pointer.fromFunction<llmodel_recalculate_callback_func>(
-        _recalculateCallback,
-        except,
-      ),
       promptContext,
     );
     // pffi.malloc.free(promptNative);
   }
-
-  static bool _promptCallback(int tokenId) => promptCallback(tokenId);
-
-  static bool _responseCallback(
-    int tokenId,
-    ffi.Pointer<pffi.Utf8> responsePart,
-  ) {
-    return responseCallback(tokenId, responsePart.toDartString());
-  }
-
-  static bool _recalculateCallback(bool isRecalculating) =>
-      recalculateCallback(isRecalculating);
 
   void setImplementationSearchPath({
     required String path,

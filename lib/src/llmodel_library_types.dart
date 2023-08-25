@@ -29,32 +29,20 @@ typedef LLModelModelCreate2 = ffi.Pointer Function(
 typedef llmodel_model_destroy_func = ffi.Void Function(ffi.Pointer);
 typedef LLModelModelDestroy = void Function(ffi.Pointer);
 
-typedef llmodel_prompt_callback_func = ffi.Bool Function(ffi.Int32);
-typedef LLModelPromptCallback = bool Function(int);
-
 typedef llmodel_response_callback_func = ffi.Bool Function(
   ffi.Int32,
   ffi.Pointer<pffi.Utf8>,
 );
 typedef LLModelResponseCallback = bool Function(int, ffi.Pointer<pffi.Utf8>);
 
-typedef llmodel_recalculate_callback_func = ffi.Bool Function(ffi.Bool);
-typedef LLModelRecalculateCallback = bool Function(bool);
-
 typedef llmodel_prompt_func = ffi.Void Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_prompt_callback_func>>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_response_callback_func>>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_recalculate_callback_func>>,
   ffi.Pointer<llmodel_prompt_context>,
 );
 typedef LLModelPrompt = void Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_prompt_callback_func>>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_response_callback_func>>,
-  ffi.Pointer<ffi.NativeFunction<llmodel_recalculate_callback_func>>,
   ffi.Pointer<llmodel_prompt_context>,
 );
 

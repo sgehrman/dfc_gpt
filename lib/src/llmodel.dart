@@ -10,6 +10,10 @@ import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
+  LLModel(this.reponseCallback);
+
+  final void Function(int tokenId, String response) reponseCallback;
+
   bool _isLoaded = false;
 
   late final LLModelLibrary _library;
@@ -18,19 +22,6 @@ class LLModel {
   late final ffi.Pointer<ffi.Pointer<ffi.Float>> _logits;
   late final ffi.Pointer<ffi.Pointer<ffi.Int32>> _tokens;
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
-
-  static void setPromptCallback(bool Function(int tokenId) callback) =>
-      LLModelLibrary.promptCallback = callback;
-
-  static void setResponseCallback(
-    bool Function(int tokenId, String response) callback,
-  ) =>
-      LLModelLibrary.responseCallback = callback;
-
-  static void setRecalculateCallback(
-    bool Function(bool isRecalculating) callback,
-  ) =>
-      LLModelLibrary.recalculateCallback = callback;
 
   static void setShutdownGracefullyCallback(
     void Function() callback,
@@ -69,6 +60,7 @@ class LLModel {
       _library = LLModelLibrary(
         // the dfc-gpt.so lib wraps the main libllmodel.so lib',
         pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
+        reponseCallback: reponseCallback,
       );
 
       _library.setImplementationSearchPath(
