@@ -13,3 +13,6 @@ are the gpt isolates being killed?
 orca mini what is your specialty?
 
 must call close() on native callback
+
+multiple windows, multiple chats? multiple tabs?
+what if we sent the data directly to the app with https? need tabId?

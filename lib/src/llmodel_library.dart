@@ -32,7 +32,8 @@ void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
     case 40: // ShutdownTypeId
       // called after a shutdown_gracefully call
       // tell lib to now dispose the model
-      LLModelLibrary.shutdownGracefullyCallback();
+
+      libraryInstance?.shutdown();
 
       break;
   }
@@ -54,6 +55,7 @@ class LLModelLibrary {
   LLModelLibrary({
     required this.pathToLibrary,
     required this.reponseCallback,
+    required this.shutdownCallback,
   }) {
     // a global singleton.  should only be called once per isolate
     if (libraryInstance != null) {
@@ -77,9 +79,8 @@ class LLModelLibrary {
   late StreamController<List<int>> callbackStreamController;
 
   final String pathToLibrary;
+  final void Function() shutdownCallback;
   final void Function(int tokenId, String response) reponseCallback;
-
-  static void Function() shutdownGracefullyCallback = () {};
 
   late final ffi.DynamicLibrary _dynamicLibrary;
 
@@ -95,6 +96,9 @@ class LLModelLibrary {
 
   void dispose() {
     callbackStreamController.close();
+
+    // this keeps the isolate alive, must close
+    nativeCallable.close();
   }
 
   void _load() {
@@ -271,5 +275,9 @@ class LLModelLibrary {
 
     final codeUnits = message.cast<Uint8>();
     callbackStreamController.add(codeUnits.asTypedList(len(codeUnits)));
+  }
+
+  void shutdown() {
+    shutdownCallback();
   }
 }

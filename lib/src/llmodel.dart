@@ -10,8 +10,12 @@ import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
-  LLModel({required this.responseCallback});
+  LLModel({
+    required this.responseCallback,
+    required this.shutdownCallback,
+  });
 
+  final void Function() shutdownCallback;
   final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
@@ -22,11 +26,6 @@ class LLModel {
   late final ffi.Pointer<ffi.Pointer<ffi.Float>> _logits;
   late final ffi.Pointer<ffi.Pointer<ffi.Int32>> _tokens;
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
-
-  static void setShutdownGracefullyCallback(
-    void Function() callback,
-  ) =>
-      LLModelLibrary.shutdownGracefullyCallback = callback;
 
   Future<void> load({
     required final String modelPath,
@@ -61,6 +60,7 @@ class LLModel {
         // the dfc-gpt.so lib wraps the main libllmodel.so lib',
         pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
         reponseCallback: responseCallback,
+        shutdownCallback: shutdownCallback,
       );
 
       _library.setImplementationSearchPath(
@@ -123,12 +123,12 @@ class LLModel {
     _library.shutdownGracefully();
   }
 
-  //  only call this after shutdownGracefullyCallback
-  void destroy() {
+  void dispose() {
     if (_isLoaded) {
       _library.modelDestroy(
         model: _model,
       );
+
       _isLoaded = false;
     }
 
