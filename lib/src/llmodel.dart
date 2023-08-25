@@ -10,7 +10,7 @@ import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
-  LLModel(this.reponseCallback);
+  LLModel({required this.reponseCallback});
 
   final void Function(int tokenId, String response) reponseCallback;
 
