@@ -7,4 +7,7 @@ dic="/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/include/dart_api_dl.c"
 # make shared lib
 clang++ -shared -o dfc-gpt.so main.cpp $libs/libllmodel.so -x c $dic -Wl,-rpath,"$libs" -fPIC
 
+# DEBUG
+# clang++ -O1 -g -fsanitize=address -fno-omit-frame-pointer -shared -o dfc-gpt.so main.cpp $libs/libllmodel.so -x c $dic -Wl,-rpath,"$libs" -fPIC
+
 cp ./dfc-gpt.so /home/steve/.local/share/re.distantfutu.deckr/gpt/libs/
