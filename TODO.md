@@ -24,3 +24,15 @@ https://developers.redhat.com/blog/2021/05/05/memory-error-checking-in-c-and-c-c
 valgrind --tool=memcheck ls -l
 
 https://valgrind.org/docs/manual/manual-core.html#manual-core.started
+
+https://api.flutter.dev/flutter/dart-ffi/Finalizable-class.html
+
+https://github.com/dart-lang/site-www/issues/3193
+
+https://dart.dev/guides/libraries/c-interop
+
+https://quickbirdstudios.com/blog/dart-weak-references-finalizers/
+
+https://win32.pub/docs/win32-programming/callbacks
+
+https://blog.logrocket.com/dart-ffi-native-libraries-flutter/#using-ffi-to-pass-strings-from-c-to-dart

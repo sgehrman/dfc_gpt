@@ -194,11 +194,9 @@ class LLModelLibrary {
     required ffi.Pointer model,
     required String modelPath,
   }) {
-    final ffi.Pointer<pffi.Utf8> modelPathNative = modelPath.toNativeUtf8();
-    final bool result = _llModelLoadModel(model, modelPathNative);
-    pffi.malloc.free(modelPathNative);
-
-    return result;
+    return pffi.using((alloc) {
+      return _llModelLoadModel(model, modelPath.toNativeUtf8(allocator: alloc));
+    });
   }
 
   ffi.Pointer modelCreate2({
@@ -206,21 +204,13 @@ class LLModelLibrary {
     required String buildVariant,
     required ffi.Pointer<LLModelError> error,
   }) {
-    final ffi.Pointer<pffi.Utf8> modelPathNative = modelPath.toNativeUtf8();
-
-    final ffi.Pointer<pffi.Utf8> buildVariantNative =
-        buildVariant.toNativeUtf8();
-
-    final ffi.Pointer result = _llModelModelCreate2(
-      modelPathNative,
-      buildVariantNative,
-      error,
-    );
-
-    pffi.malloc.free(modelPathNative);
-    pffi.malloc.free(buildVariantNative);
-
-    return result;
+    return pffi.using((alloc) {
+      return _llModelModelCreate2(
+        modelPath.toNativeUtf8(allocator: alloc),
+        buildVariant.toNativeUtf8(allocator: alloc),
+        error,
+      );
+    });
   }
 
   void shutdownGracefully() {
@@ -238,21 +228,21 @@ class LLModelLibrary {
     required String prompt,
     required ffi.Pointer<llmodel_prompt_context> promptContext,
   }) {
-    final ffi.Pointer<pffi.Utf8> promptNative = prompt.toNativeUtf8();
-    _llModelPrompt(
-      model,
-      promptNative,
-      promptContext,
-    );
-    pffi.malloc.free(promptNative);
+    pffi.using((alloc) {
+      _llModelPrompt(
+        model,
+        prompt.toNativeUtf8(allocator: alloc),
+        promptContext,
+      );
+    });
   }
 
   void setImplementationSearchPath({
     required String path,
   }) {
-    final ffi.Pointer<pffi.Utf8> pathNative = path.toNativeUtf8();
-    _llModelSetImplementationSearchPath(path.toNativeUtf8());
-    pffi.malloc.free(pathNative);
+    pffi.using((alloc) {
+      _llModelSetImplementationSearchPath(path.toNativeUtf8(allocator: alloc));
+    });
   }
 
   // =================================================================
