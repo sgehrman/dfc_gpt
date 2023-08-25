@@ -35,11 +35,6 @@ void llog(const char *message) {
   fprintMutex.unlock();
 }
 
-void myterminate() {
-  llog("terminate handler called\n");
-  //   abort();  // forces abnormal termination
-}
-
 const char *copyString(const char *str) {
   intptr_t len = strlen(str) + 1;  // Length with \0.
   char *copy = new char[len];
@@ -53,12 +48,7 @@ intptr_t InitDartApiDL(void *data) {
   return Dart_InitializeApiDL(data);
 }
 
-void RegisterDartCallback(Dart_Callback callback) {
-  dart_callback = callback;
-
-  // SNG tseting
-  std::set_terminate(myterminate);
-}
+void RegisterDartCallback(Dart_Callback callback) { dart_callback = callback; }
 
 // =======================================================
 // llmodel_prompt callbacks
@@ -124,7 +114,7 @@ void dfc_shutdown_gracefully() {
 
   threadMutex.unlock();
 
-  llog("in dfc_shutdown_gracefully()");
+  llog("out dfc_shutdown_gracefully()");
 }
 
 // ==========================================================
@@ -155,6 +145,8 @@ void promptThread(llmodel_model model, const char *prompt,
   std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
   threadMutex.unlock();
+
+  llog("detached thread done promptThread");
 }
 
 void threadedPrompt(llmodel_model model, const char *prompt,
