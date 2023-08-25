@@ -95,10 +95,15 @@ class LLModelLibrary {
   late final LLModelShutdownGracefully _llModelShutdownGracefully;
 
   void dispose() {
+    print('## in LLModelLibrary dispose');
+
     callbackStreamController.close();
 
     // this keeps the isolate alive, must close
     nativeCallable.close();
+    _dynamicLibrary.close();
+
+    print('## out LLModelLibrary dispose');
   }
 
   void _load() {

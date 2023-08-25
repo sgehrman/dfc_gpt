@@ -124,16 +124,20 @@ class LLModel {
   }
 
   void dispose() {
+    print('## in llmodel dispose');
     if (_isLoaded) {
       _library.modelDestroy(
         model: _model,
       );
 
+      _library.dispose();
       _isLoaded = false;
     }
 
     calloc.free(_promptContext);
     calloc.free(_tokens);
     calloc.free(_logits);
+
+    print('## out llmodel dispose');
   }
 }
