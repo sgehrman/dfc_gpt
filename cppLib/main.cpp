@@ -139,6 +139,8 @@ void promptThread(llmodel_model model, const char *prompt,
     llog("llmodel_prompt bombed");
   }
 
+  llog(std::to_string(responses).c_str());
+
   llog("out llmodel_prompt()");
 
   // give time before we exit the thread?
