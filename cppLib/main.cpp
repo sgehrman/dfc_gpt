@@ -104,6 +104,8 @@ bool recalculate_function(bool is_recalculating) {
 }
 
 void dfc_shutdown_gracefully() {
+  llog("in dfc_shutdown_gracefully()");
+
   try {
     running = false;
     threadMutex.lock();
@@ -121,6 +123,8 @@ void dfc_shutdown_gracefully() {
   std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
   threadMutex.unlock();
+
+  llog("in dfc_shutdown_gracefully()");
 }
 
 // ==========================================================
