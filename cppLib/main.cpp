@@ -63,9 +63,10 @@ bool prompt_function(int32_t token_id) {
 
 bool response_function(int32_t token_id, const char *response) {
   // llog("in response_function");
-  responses += 1;
 
   if (running) {
+    responses += 1;
+
     intptr_t len = strlen(response) + 1;  // Length with \0.
 
     if (len > 1) {
