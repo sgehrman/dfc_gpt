@@ -86,19 +86,23 @@ class LLModelLibrary {
   }
 
   // this is called from native cpp thread and arrives on the main dart thread
-  void dartCallback(ffi.Pointer<pffi.Utf8> message, int tokenId, int typeId) {
+  static void dartCallback(
+    ffi.Pointer<pffi.Utf8> message,
+    int tokenId,
+    int typeId,
+  ) {
     switch (typeId) {
       case 10: // prompt
         // print(message.toDartString());
         break;
       case 20: // response
-        processDataFromCallback(
+        libraryInstance?.processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
         break;
       case 30: // recalculate
-        processDataFromCallback(
+        libraryInstance?.processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
@@ -108,7 +112,7 @@ class LLModelLibrary {
         // called after a shutdown_gracefully call
         // tell lib to now dispose the model
 
-        shutdown();
+        libraryInstance?.shutdown();
 
         break;
     }
