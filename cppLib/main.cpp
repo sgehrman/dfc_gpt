@@ -3,10 +3,10 @@
 #include <string.h>
 
 #include <chrono>
-#include <functional>
 #include <iostream>
 #include <mutex>
 #include <sstream>
+#include <string>
 #include <thread>
 
 #include "./chatlib/gpt4all/gpt4all-backend/llmodel_c.h"
@@ -30,9 +30,14 @@ std::mutex threadMutex;
 std::mutex fprintMutex;
 
 void llog(const char *message) {
-  fprintMutex.lock();
-  fprintf(stderr, "llog: %s\n", message);
-  fprintMutex.unlock();
+  const std::lock_guard<std::mutex> lock(fprintMutex);
+
+  std::thread::id this_id = std::this_thread::get_id();
+
+  std::ostringstream oss;
+  oss << std::this_thread::get_id();
+
+  fprintf(stderr, "(%s) llog: %s\n", oss.str().c_str(), message);
 }
 
 const char *copyString(const char *str) {
