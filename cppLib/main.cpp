@@ -67,6 +67,8 @@ bool response_function(int32_t token_id, const char *response) {
   if (running) {
     intptr_t len = strlen(response);
 
+    // llog(std::to_string(len).c_str());
+
     if (len > 0) {
       responses += 1;
 
@@ -154,7 +156,7 @@ void promptThread(llmodel_model model, const char *prompt,
 
 void threadedPrompt(llmodel_model model, const char *prompt,
                     llmodel_prompt_context *ctx) {
-  llog("in threadedPrompt");
+  llog("###### in threadedPrompt");
 
   running = false;
   threadMutex.lock();
@@ -163,9 +165,9 @@ void threadedPrompt(llmodel_model model, const char *prompt,
 
   std::thread t = std::thread(promptThread, model, prompt, ctx);
 
-  t.detach();
+  t.join();
 
-  llog("out threadedPrompt");
+  llog("##### out threadedPrompt");
 }
 
 // ===============================================================

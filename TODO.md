@@ -41,3 +41,26 @@ https://github.com/dart-lang/samples/blob/main/ffi/primitives/primitives_library
 4. makefile
 5. try without thread or join()?
 6. keep detached thread alive?
+
+```
+
+ #include <bits/stdc++.h>
+using namespace std;
+condition_variable cv;
+mutex m;
+void work(){
+    this_thread::sleep_for(chrono::seconds(2));
+    cout << "Worker Thread Completed" << endl;
+    cv.notify_all();
+}
+int main(){
+    thread t(work);
+    t.detach();
+    cout << "Main Returning..." << endl;
+    unique_lock<mutex>ul(m);
+    cv.wait(ul);
+    return 0;
+}
+
+
+```
