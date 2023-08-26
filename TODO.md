@@ -2,8 +2,6 @@ package up .so files. download from website? macos signing?
 
 paths in build functions. make dart tools?
 
-need a way to version the libs, replace on updates
-
 handle download errors.
 
 toast when dialog is closed
@@ -11,8 +9,6 @@ toast when dialog is closed
 are the gpt isolates being killed?
 
 orca mini what is your specialty?
-
-must call close() on native callback
 
 multiple windows, multiple chats? multiple tabs?
 what if we sent the data directly to the app with https? need tabId?
@@ -36,3 +32,12 @@ https://quickbirdstudios.com/blog/dart-weak-references-finalizers/
 https://win32.pub/docs/win32-programming/callbacks
 
 https://blog.logrocket.com/dart-ffi-native-libraries-flutter/#using-ffi-to-pass-strings-from-c-to-dart
+
+https://github.com/dart-lang/samples/blob/main/ffi/primitives/primitives_library/CMakeLists.txt
+
+1. issue with promt context?
+2. Finalizable?
+3. read ffi docs
+4. makefile
+5. try without thread or join()?
+6. keep detached thread alive?

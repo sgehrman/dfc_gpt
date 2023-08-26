@@ -65,11 +65,11 @@ bool response_function(int32_t token_id, const char *response) {
   // llog("in response_function");
 
   if (running) {
-    responses += 1;
-
     intptr_t len = strlen(response);
 
     if (len > 0) {
+      responses += 1;
+
       const char *copy = copyString(response);
       dart_callback(copy, token_id, ResponseTypeId);
 
