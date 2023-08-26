@@ -123,8 +123,8 @@ void dfc_shutdown_gracefully() {
 // ==========================================================
 // thread function
 
-void promptThread(llmodel_model model, const char *prompt,
-                  llmodel_prompt_context *ctx) {
+void prompt_thread(llmodel_model model, const char *prompt,
+                   llmodel_prompt_context *ctx) {
   llog("calling llmodel_prompt()");
   responses = 0;
 
@@ -163,9 +163,9 @@ void threadedPrompt(llmodel_model model, const char *prompt,
   running = true;
   llog("threadedPrompt got past lock");
 
-  std::thread t = std::thread(promptThread, model, prompt, ctx);
+  std::thread t = std::thread(prompt_thread, model, prompt, ctx);
 
-  t.join();
+  t.detach();
 
   llog("##### out threadedPrompt");
 }
