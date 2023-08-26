@@ -40,3 +40,9 @@ https://github.com/dart-lang/samples/blob/main/ffi/primitives/primitives_library
 3. read ffi docs
 4. makefile
 5. cmd line tool and valgrind?
+
+https://github.com/dart-lang/sdk/issues/48532
+
+https://github.com/flutterwtf/Isolate-Examples?ref=blog.flutter.wtf
+
+https://github.com/dart-lang/sdk/blob/58969783ba/sdk/lib/_internal/vm/lib/internal_patch.dart#L189
