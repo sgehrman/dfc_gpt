@@ -3,9 +3,9 @@
 import 'dart:ffi' as ffi;
 import 'dart:io';
 
-import 'package:dfc_gpt/src/llmodel_library.dart';
-import 'package:dfc_gpt/src/llmodel_library_types.dart';
-import 'package:dfc_gpt/src/llmodel_prompt_config.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel_library.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel_prompt_config.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
@@ -18,9 +18,7 @@ class LLModel {
   final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
-
   late final ffi.Pointer _model;
-
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
   Future<void> load({
@@ -50,7 +48,7 @@ class LLModel {
         ..context_erase = promptConfig.contextErase;
 
       LLModelLibrary.initialize(
-        pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
+        librarySearchPath: librarySearchPath,
         reponseCallback: responseCallback,
       );
 
@@ -88,18 +86,6 @@ class LLModel {
     }
   }
 
-  String _getFileSuffix() {
-    if (Platform.isWindows) {
-      return '.dll';
-    } else if (Platform.isMacOS) {
-      return '.dylib';
-    } else if (Platform.isLinux) {
-      return '.so';
-    } else {
-      throw Exception('Unsupported device');
-    }
-  }
-
   void generate({
     required String prompt,
   }) {
@@ -119,8 +105,8 @@ class LLModel {
       _isLoaded = false;
     }
 
-    calloc.free(_promptContext);
-
-    print('## out llmodel dispose');
+    if (_promptContext != ffi.nullptr) {
+      calloc.free(_promptContext);
+    }
   }
 }

@@ -3,8 +3,8 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
-import 'package:dfc_gpt/src/llmodel.dart';
-import 'package:dfc_gpt/src/llmodel_library.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel_library.dart';
 import 'package:flutter/services.dart';
 
 // ==================================================

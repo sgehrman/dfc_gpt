@@ -4,25 +4,26 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
+import 'dart:io';
 
-import 'package:dfc_gpt/src/llmodel_library_types.dart';
+import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
 import 'package:ffi/ffi.dart' as pffi;
 
 // =======================================================================
 
 class LLModelLibrary {
   factory LLModelLibrary._priv({
-    required String pathToLibrary,
+    required String librarySearchPath,
     required Function(int tokenId, String response) reponseCallback,
   }) {
     return _instance ??= LLModelLibrary._(
-      pathToLibrary: pathToLibrary,
+      librarySearchPath: librarySearchPath,
       reponseCallback: reponseCallback,
     );
   }
 
   LLModelLibrary._({
-    required this.pathToLibrary,
+    required this.librarySearchPath,
     required this.reponseCallback,
   }) {
     nativeCallable = ffi.NativeCallable<
@@ -48,12 +49,12 @@ class LLModelLibrary {
   // ==================================================
 
   static void initialize({
-    required String pathToLibrary,
+    required String librarySearchPath,
     required Function(int tokenId, String response) reponseCallback,
   }) {
     if (_instance == null) {
       LLModelLibrary._priv(
-        pathToLibrary: pathToLibrary,
+        librarySearchPath: librarySearchPath,
         reponseCallback: reponseCallback,
       );
     }
@@ -72,7 +73,7 @@ class LLModelLibrary {
   late StreamController<List<int>> callbackStreamController;
   Completer<bool>? _shutdownCompleter;
 
-  final String pathToLibrary;
+  final String librarySearchPath;
   final void Function(int tokenId, String response) reponseCallback;
   late ffi.NativeCallable<
           ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>
@@ -91,15 +92,11 @@ class LLModelLibrary {
   late final LLModelShutdownGracefully _llModelShutdownGracefully;
 
   void dispose() {
-    print('## in LLModelLibrary dispose');
-
     callbackStreamController.close();
 
     // this keeps the isolate alive, must close
     nativeCallable.close();
     _dynamicLibrary.close();
-
-    print('## out LLModelLibrary dispose');
   }
 
   // this is called from native cpp thread and arrives on the main dart thread
@@ -135,17 +132,30 @@ class LLModelLibrary {
     }
   }
 
+  String _getFileSuffix() {
+    if (Platform.isWindows) {
+      return '.dll';
+    } else if (Platform.isMacOS) {
+      return '.dylib';
+    } else if (Platform.isLinux) {
+      return '.so';
+    } else {
+      throw Exception('Unsupported device');
+    }
+  }
+
   void _load() {
-    _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
+    final pathToLibrary = '$librarySearchPath/dfc-gpt${_getFileSuffix()}';
+    final dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
     _initializeMethodBindings();
 
-    final initializeApi = _dynamicLibrary.lookupFunction<
+    final initializeApi = dynamicLibrary.lookupFunction<
         ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
         int Function(ffi.Pointer<ffi.Void>)>('InitDartApiDL');
 
     initializeApi(ffi.NativeApi.initializeApiDLData);
 
-    final registerCallback = _dynamicLibrary.lookupFunction<
+    final registerCallback = dynamicLibrary.lookupFunction<
         ffi.Void Function(
           ffi.Pointer<
                   ffi.NativeFunction<
@@ -285,12 +295,8 @@ class LLModelLibrary {
     required int tokenId,
     required ffi.Pointer<pffi.Utf8> message,
   }) {
-    // utf failing. wizardlm superhot, type hello
-    // file.openRead().transform(utf8.decoder)
-    // https://api.dart.dev/stable/3.1.0/dart-async/Stream/map.html
-
-    // file.openRead().transform(utf8.decoder)
-
+    // message.toDartString() doesn't work if the utf8 is broken between glyphs
+    // this works better
     int len(Pointer<Uint8> codeUnits) {
       var length = 0;
 
