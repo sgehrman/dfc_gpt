@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 const kSourceDirectory =
-    '/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/chatlib/gpt4all/gpt4all-backend/build';
-const kDestDirectory = '/home/steve/.local/share/re.distantfutu.deckr/gpt/libs';
+    '~/Documents/GitHub/dfc/dfc_gpt/cppLib/chatlib/gpt4all/gpt4all-backend/build';
+const kDestDirectory = '~/.local/share/re.distantfutu.deckr/gpt/libs';
 
 const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
 const kDfcGptSharedLibPath =
-    '/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
+    '~/Documents/GitHub/dfc/dfc_gpt/cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 
 // ===============================================================
 
