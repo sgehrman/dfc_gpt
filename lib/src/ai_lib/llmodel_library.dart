@@ -146,16 +146,17 @@ class LLModelLibrary {
 
   void _load() {
     final pathToLibrary = '$librarySearchPath/dfc-gpt${_getFileSuffix()}';
-    final dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
+    _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
+
     _initializeMethodBindings();
 
-    final initializeApi = dynamicLibrary.lookupFunction<
+    final initializeApi = _dynamicLibrary.lookupFunction<
         ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
         int Function(ffi.Pointer<ffi.Void>)>('InitDartApiDL');
 
     initializeApi(ffi.NativeApi.initializeApiDLData);
 
-    final registerCallback = dynamicLibrary.lookupFunction<
+    final registerCallback = _dynamicLibrary.lookupFunction<
         ffi.Void Function(
           ffi.Pointer<
                   ffi.NativeFunction<
