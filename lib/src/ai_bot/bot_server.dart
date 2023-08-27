@@ -6,17 +6,14 @@ import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
 class BotServer {
   factory BotServer({
-    required String modelPath,
     required String librarySearchPath,
   }) {
     return _instance ??= BotServer._(
-      modelPath: modelPath,
       librarySearchPath: librarySearchPath,
     );
   }
 
   BotServer._({
-    required this.modelPath,
     required this.librarySearchPath,
   }) {
     _setup();
@@ -25,11 +22,10 @@ class BotServer {
   // ==================================================
 
   static void initialize({
-    required String modelPath,
     required String librarySearchPath,
   }) {
     if (_instance == null) {
-      BotServer(modelPath: modelPath, librarySearchPath: librarySearchPath);
+      BotServer(librarySearchPath: librarySearchPath);
     }
   }
 
@@ -43,7 +39,6 @@ class BotServer {
 
   static BotServer? _instance;
 
-  final String modelPath;
   final String librarySearchPath;
 
   late BotIsolate _botIsolate;
@@ -58,7 +53,6 @@ class BotServer {
 
   void _setup() {
     _botIsolate = BotIsolate(
-      modelPath: modelPath,
       librarySearchPath: librarySearchPath,
       callback: (BotIsolateResponse response) {
         BotClientNotifier().notifyClients(response);

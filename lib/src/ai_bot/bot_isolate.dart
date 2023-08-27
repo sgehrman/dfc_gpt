@@ -8,12 +8,10 @@ import 'package:flutter/services.dart';
 
 class BotIsolate {
   BotIsolate({
-    required this.modelPath,
     required this.librarySearchPath,
     required this.callback,
   });
 
-  final String modelPath;
   final String librarySearchPath;
   final void Function(BotIsolateResponse response) callback;
 
@@ -71,7 +69,6 @@ class BotIsolate {
 
     isolate = await _spawn(
       sendPort: receivePort.sendPort,
-      modelPath: modelPath,
       librarySearchPath: librarySearchPath,
     );
 
@@ -83,7 +80,6 @@ class BotIsolate {
   // local variables for the closure, but it failed with the above Completer.
   static Future<Isolate> _spawn({
     required SendPort sendPort,
-    required String modelPath,
     required String librarySearchPath,
   }) {
     final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
@@ -92,7 +88,6 @@ class BotIsolate {
       (sendPort) => BotIsolateFunction.isolateStart(
         sendPort,
         rootIsolateToken,
-        modelPath,
         librarySearchPath,
       ),
       sendPort,

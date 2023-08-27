@@ -16,7 +16,6 @@ class BotIsolateFunction {
   static void isolateStart(
     SendPort sendPort,
     RootIsolateToken rootToken,
-    String modelPath,
     String librarySearchPath,
   ) {
     // errors happen without this

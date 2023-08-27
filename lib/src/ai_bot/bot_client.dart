@@ -3,12 +3,10 @@ import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
 class BotClient {
   BotClient({
-    required String modelPath,
     required String librarySearchPath,
     required this.callback,
   }) {
     BotServer.initialize(
-      modelPath: modelPath,
       librarySearchPath: librarySearchPath,
     );
 
