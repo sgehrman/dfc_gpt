@@ -13,7 +13,7 @@ popd
 # copy it to the libs dir
 pushd "cppLib/dfc_gpt"
 
-cp ./build/libdfc-gpt.so /home/steve/.local/share/re.distantfutu.deckr/gpt/libs/
+cp ./build/libdfc-gpt.so ~/.local/share/re.distantfutu.deckr/gpt/libs/
 
 popd
 
