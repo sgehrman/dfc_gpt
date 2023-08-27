@@ -70,7 +70,7 @@ class BotServer {
       BotIsolateResponse(
         type: 'gpt-response',
         data: question,
-        //   param2: kFromUser,
+        fromUser: true,
       ),
     );
 

@@ -51,7 +51,7 @@ class BotIsolate {
           BotIsolateResponse(
             type: 'gpt-response',
             data: data.output,
-            //   param2: kFromAI,
+            fromUser: false,
           ),
         );
       } else if (data is BotIsolateFinished) {

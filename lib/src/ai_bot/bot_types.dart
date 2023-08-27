@@ -2,7 +2,7 @@ class BotIsolateResponse {
   const BotIsolateResponse({
     required this.type,
     required this.data,
-    this.fromUser = false,
+    required this.fromUser,
   });
 
   final String type;

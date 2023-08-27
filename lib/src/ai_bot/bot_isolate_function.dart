@@ -97,6 +97,9 @@ class BotRequestHandler {
     if (_model == null || _model!.modelPath != request.modelPath) {
       // need to rebuild with new model first
       await updateModel(request.modelPath);
+    } else {
+      // interrupt any message still being answered
+      await LLModelLibrary.shared.shutdownGracefully();
     }
 
     _model?.generate(
