@@ -5,32 +5,26 @@ import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
 
-import 'package:dfc_gpt/src/llmodel_error.dart';
 import 'package:dfc_gpt/src/llmodel_library_types.dart';
-import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart' as pffi;
 
 // =======================================================================
 
-// global for callback
-LLModelLibrary? libraryInstance;
-
-// =======================================================================
-
 class LLModelLibrary {
-  LLModelLibrary({
+  factory LLModelLibrary._priv({
+    required String pathToLibrary,
+    required Function(int tokenId, String response) reponseCallback,
+  }) {
+    return _instance ??= LLModelLibrary._(
+      pathToLibrary: pathToLibrary,
+      reponseCallback: reponseCallback,
+    );
+  }
+
+  LLModelLibrary._({
     required this.pathToLibrary,
     required this.reponseCallback,
-    required this.shutdownCallback,
   }) {
-    // a global singleton.  should only be called once per isolate
-    if (libraryInstance != null) {
-      print(
-        'libraryInstance should not be set twice, new request should be in a new isolate.',
-      );
-    }
-    libraryInstance = this;
-
     nativeCallable = ffi.NativeCallable<
         ffi.Void Function(
           ffi.Pointer<pffi.Utf8>,
@@ -51,10 +45,34 @@ class LLModelLibrary {
     });
   }
 
+  // ==================================================
+
+  static void initialize({
+    required String pathToLibrary,
+    required Function(int tokenId, String response) reponseCallback,
+  }) {
+    if (_instance == null) {
+      LLModelLibrary._priv(
+        pathToLibrary: pathToLibrary,
+        reponseCallback: reponseCallback,
+      );
+    }
+  }
+
+  static LLModelLibrary get shared {
+    if (_instance == null) {
+      throw StateError('Call initialize first');
+    }
+
+    return _instance!;
+  }
+
+  static LLModelLibrary? _instance;
+
   late StreamController<List<int>> callbackStreamController;
+  Completer<bool>? _shutdownCompleter;
 
   final String pathToLibrary;
-  final void Function() shutdownCallback;
   final void Function(int tokenId, String response) reponseCallback;
   late ffi.NativeCallable<
           ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>
@@ -80,7 +98,6 @@ class LLModelLibrary {
     // this keeps the isolate alive, must close
     nativeCallable.close();
     _dynamicLibrary.close();
-    libraryInstance = null;
 
     print('## out LLModelLibrary dispose');
   }
@@ -96,13 +113,13 @@ class LLModelLibrary {
         // print(message.toDartString());
         break;
       case 20: // response
-        libraryInstance?.processDataFromCallback(
+        LLModelLibrary.shared.processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
         break;
       case 30: // recalculate
-        libraryInstance?.processDataFromCallback(
+        LLModelLibrary.shared.processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
@@ -112,7 +129,7 @@ class LLModelLibrary {
         // called after a shutdown_gracefully call
         // tell lib to now dispose the model
 
-        libraryInstance?.shutdown();
+        LLModelLibrary.shared._shutdownFromCallback();
 
         break;
     }
@@ -225,8 +242,12 @@ class LLModelLibrary {
     });
   }
 
-  void shutdownGracefully() {
+  Future<bool> shutdownGracefully() {
+    _shutdownCompleter = Completer<bool>();
+
     _llModelShutdownGracefully();
+
+    return _shutdownCompleter!.future;
   }
 
   void modelDestroy({
@@ -284,7 +305,9 @@ class LLModelLibrary {
     callbackStreamController.add(codeUnits.asTypedList(len(codeUnits)));
   }
 
-  void shutdown() {
-    shutdownCallback();
+  void _shutdownFromCallback() {
+    if (_shutdownCompleter != null) {
+      _shutdownCompleter!.complete(true);
+    }
   }
 }

@@ -3,30 +3,27 @@
 import 'dart:ffi' as ffi;
 import 'dart:io';
 
-import 'package:dfc_gpt/src/llmodel_error.dart';
 import 'package:dfc_gpt/src/llmodel_library.dart';
+import 'package:dfc_gpt/src/llmodel_library_types.dart';
 import 'package:dfc_gpt/src/llmodel_prompt_config.dart';
-import 'package:dfc_gpt/src/llmodel_prompt_context.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
   LLModel({
+    required this.modelPath,
     required this.responseCallback,
-    required this.shutdownCallback,
   });
 
-  final void Function() shutdownCallback;
+  final String modelPath;
   final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
 
-  late final LLModelLibrary _library;
   late final ffi.Pointer _model;
 
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
   Future<void> load({
-    required final String modelPath,
     required final String librarySearchPath,
     LLModelPromptConfig? promptConfig,
   }) async {
@@ -52,14 +49,12 @@ class LLModel {
         ..repeat_last_n = promptConfig.repeatLastN
         ..context_erase = promptConfig.contextErase;
 
-      _library = LLModelLibrary(
-        // the dfc-gpt.so lib wraps the main libllmodel.so lib',
+      LLModelLibrary.initialize(
         pathToLibrary: '$librarySearchPath/dfc-gpt${_getFileSuffix()}',
         reponseCallback: responseCallback,
-        shutdownCallback: shutdownCallback,
       );
 
-      _library.setImplementationSearchPath(
+      LLModelLibrary.shared.setImplementationSearchPath(
         path: librarySearchPath,
       );
 
@@ -67,7 +62,7 @@ class LLModel {
         throw Exception('Model file does not exist: $modelPath');
       }
 
-      _model = _library.modelCreate2(
+      _model = LLModelLibrary.shared.modelCreate2(
         modelPath: modelPath,
         buildVariant: 'auto',
         error: error,
@@ -78,12 +73,12 @@ class LLModel {
         throw Exception('Could not load gpt4all backend: $errorMsg');
       }
 
-      _library.loadModel(
+      LLModelLibrary.shared.loadModel(
         model: _model,
         modelPath: modelPath,
       );
 
-      if (_library.isModelLoaded(model: _model)) {
+      if (LLModelLibrary.shared.isModelLoaded(model: _model)) {
         _isLoaded = true;
       } else {
         throw Exception('The model could not be loaded');
@@ -108,25 +103,19 @@ class LLModel {
   void generate({
     required String prompt,
   }) {
-    _library.prompt(
+    LLModelLibrary.shared.prompt(
       model: _model,
       prompt: prompt,
       promptContext: _promptContext,
     );
   }
 
-  void shutdownGracefully() {
-    _library.shutdownGracefully();
-  }
-
   void dispose() {
-    print('## in llmodel dispose');
     if (_isLoaded) {
-      _library.modelDestroy(
+      LLModelLibrary.shared.modelDestroy(
         model: _model,
       );
 
-      _library.dispose();
       _isLoaded = false;
     }
 
