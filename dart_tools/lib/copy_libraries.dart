@@ -6,9 +6,9 @@ const kSourceDirectory =
     '/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/chatlib/gpt4all/gpt4all-backend/build';
 const kDestDirectory = '/home/steve/.local/share/re.distantfutu.deckr/gpt/libs';
 
-const kDfcGptSharedLibFilename = 'dfc-gpt.so';
+const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
 const kDfcGptSharedLibPath =
-    '/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/$kDfcGptSharedLibFilename';
+    '/home/steve/Documents/GitHub/dfc/dfc_gpt/cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 
 // ===============================================================
 

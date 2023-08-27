@@ -145,7 +145,7 @@ class LLModelLibrary {
   }
 
   void _load() {
-    final pathToLibrary = '$librarySearchPath/dfc-gpt${_getFileSuffix()}';
+    final pathToLibrary = '$librarySearchPath/libdfc-gpt${_getFileSuffix()}';
     _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
 
     _initializeMethodBindings();
