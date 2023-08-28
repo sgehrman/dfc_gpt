@@ -3,6 +3,7 @@ project(dfc_gpt)
 
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 # make windows match linux with a lib prefix
 if(WIN32)

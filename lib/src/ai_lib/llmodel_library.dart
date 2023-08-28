@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
 import 'package:ffi/ffi.dart' as pffi;
+import 'package:path/path.dart' as p;
 
 // =======================================================================
 
@@ -145,11 +146,11 @@ class LLModelLibrary {
   }
 
   void _load() {
-    final pathToLibrary = '$librarySearchPath/libdfc-gpt${_getFileSuffix()}';
+    final pathToLibrary = p.join(
+      librarySearchPath,
+      'libdfc-gpt${_getFileSuffix()}',
+    );
     _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
-
-    print(pathToLibrary);
-    print(_dynamicLibrary);
 
     _initializeMethodBindings();
 
