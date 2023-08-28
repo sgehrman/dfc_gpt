@@ -10,5 +10,5 @@ cmake --build . --parallel --config Release
 
 popd
 
-# dart './dart_tools/lib/copy_libraries.dart'
+dart './dart_tools/lib/copy_libraries.dart'
 

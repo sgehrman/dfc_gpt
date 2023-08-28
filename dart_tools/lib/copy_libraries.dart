@@ -7,9 +7,6 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 // relative to project directory
-const kSourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
-
-// relative to project directory
 const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
 const kDfcGptSharedLibPath = 'cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 
@@ -18,7 +15,7 @@ const kDfcGptSharedLibPath = 'cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 void main() {
   final projectDir = Directory.current.path;
 
-  final srcDir = Directory(p.join(projectDir, kSourceDirectory)).absolute;
+  final srcDir = Directory(p.join(projectDir, sourceDir())).absolute;
   final destDir = Directory(usersGptLibs()).absolute;
 
   print('### COPYING: $srcDir');
@@ -114,6 +111,23 @@ String libExt() {
       return '.dll';
     default:
       print('### no lib ext?');
+      return '';
+  }
+}
+
+String sourceDir() {
+  // relative to project directory
+  const sourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
+
+  switch (Platform.operatingSystem) {
+    case 'linux':
+      return sourceDirectory;
+    case 'macos':
+      return sourceDirectory;
+    case 'windows':
+      return '$sourceDirectory/bin/Release';
+    default:
+      print('### no sourceDir?');
       return '';
   }
 }
