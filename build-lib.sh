@@ -6,9 +6,9 @@ rm -r build
 mkdir build
 cd build
 cmake ..
-cmake --build . --parallel
+cmake --build . --parallel --config Release
 
 popd
 
-dart './dart_tools/lib/copy_libraries.dart'
+# dart './dart_tools/lib/copy_libraries.dart'
 
