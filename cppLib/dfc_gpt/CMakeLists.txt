@@ -17,7 +17,8 @@ add_library(library
 )
 
 if(WIN32)
-  set(GPT_BUILD_LOCATION "build/bin/Release")
+  # links with Release .libs? not bin/Release?
+  set(GPT_BUILD_LOCATION "build/Release") 
 else() 
   set(GPT_BUILD_LOCATION "build")
 endif()
