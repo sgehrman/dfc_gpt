@@ -34,3 +34,8 @@ https://github.com/dart-lang/samples/blob/main/ffi/primitives/primitives_library
 https://en.cppreference.com/w/cpp/thread/lock_guard
 
 https://github.com/dart-lang/sdk/issues/37022
+
+// put windows dlls in same folder /gpt?
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(BUILD_SHARED_LIBS ON)
