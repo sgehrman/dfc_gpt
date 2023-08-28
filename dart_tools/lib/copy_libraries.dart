@@ -6,12 +6,6 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-// relative to project directory
-const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
-const kDfcGptSharedLibPath = 'cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
-
-// ===============================================================
-
 void main() {
   final projectDir = Directory.current.path;
 
@@ -51,15 +45,14 @@ void main() {
   }
 
   // copy over our libgpt-lib.so
-  final dfcGptSharedLib =
-      File(p.join(projectDir, kDfcGptSharedLibPath)).absolute;
+  final dfcGptSharedLib = File(p.join(projectDir, sharedLibPath())).absolute;
   print('sharedLib: $dfcGptSharedLib');
 
   if (dfcGptSharedLib.existsSync()) {
     dfcGptSharedLib
         .copySync(p.join(destDir.path, p.basename(dfcGptSharedLib.path)));
   } else {
-    print('### $kDfcGptSharedLibFilename doesnt exist');
+    print('### $sharedLibPath() doesnt exist');
   }
 }
 
@@ -126,6 +119,26 @@ String sourceDir() {
       return sourceDirectory;
     case 'windows':
       return '$sourceDirectory/bin/Release';
+    default:
+      print('### no sourceDir?');
+      return '';
+  }
+}
+
+String sharedLibPath() {
+  // relative to project directory
+  const sourceDirectory = 'cppLib/dfc_gpt/build';
+
+  // relative to project directory
+  final filename = 'libdfc-gpt${libExt()}';
+
+  switch (Platform.operatingSystem) {
+    case 'linux':
+      return '$sourceDirectory/$filename';
+    case 'macos':
+      return '$sourceDirectory/$filename';
+    case 'windows':
+      return '$sourceDirectory/Release/$filename';
     default:
       print('### no sourceDir?');
       return '';
