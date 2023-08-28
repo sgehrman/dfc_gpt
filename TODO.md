@@ -34,5 +34,3 @@ https://github.com/dart-lang/samples/blob/main/ffi/primitives/primitives_library
 https://en.cppreference.com/w/cpp/thread/lock_guard
 
 https://github.com/dart-lang/sdk/issues/37022
-
-cmake —-build . —-config Release
