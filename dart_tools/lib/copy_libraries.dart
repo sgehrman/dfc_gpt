@@ -6,28 +6,36 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-const kSourceDirectory =
-    '~/Documents/GitHub/dfc/dfc_gpt/cppLib/chatlib/gpt4all/gpt4all-backend/build';
-const kDestDirectory = '~/.local/share/re.distantfutu.deckr/gpt/libs';
+// relative to project directory
+const kSourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
+
+// relative to home directory
+const kLinuxDestDirectory = '.local/share/re.distantfutu.deckr/gpt/libs';
 
 const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
-const kDfcGptSharedLibPath =
-    '~/Documents/GitHub/dfc/dfc_gpt/cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
+
+// relative to project directory
+const kDfcGptSharedLibPath = 'cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 
 // ===============================================================
 
 void main() {
-  final srcDir = Directory(kSourceDirectory).absolute;
+  final homeDir = homeDirectory();
+  final projectDir = Directory.current.path;
+
+  final srcDir = Directory(p.join(projectDir, kSourceDirectory)).absolute;
+  final destDir = Directory(p.join(homeDir, kLinuxDestDirectory)).absolute;
+
+  print('src: $srcDir');
+  print('destDir: $destDir');
+
+  // if dir exists, delete it and recreate
+  if (destDir.existsSync()) {
+    destDir.deleteSync(recursive: true);
+  }
+  destDir.createSync();
 
   if (srcDir.existsSync()) {
-    final destDir = Directory(kDestDirectory).absolute;
-
-    // if dir exists, delete it and recreate
-    if (destDir.existsSync()) {
-      destDir.deleteSync(recursive: true);
-    }
-    destDir.createSync();
-
     // set for symlinks
     Directory.current = destDir;
 
@@ -43,15 +51,30 @@ void main() {
         file.copySync(p.join(destDir.path, p.basename(file.path)));
       }
     }
-
-    // copy over our gpt-lib.so
-    final dfcGptSharedLib = File(kDfcGptSharedLibPath).absolute;
-    if (dfcGptSharedLib.existsSync()) {
-      dfcGptSharedLib.copySync(p.join(destDir.path, kDfcGptSharedLibFilename));
-    } else {
-      print('$kDfcGptSharedLibFilename doesnt exist');
-    }
   } else {
-    print('### Error: could not find gpt build files');
+    print('### Error: could not find srcDir');
+  }
+
+  // copy over our gpt-lib.so
+  final dfcGptSharedLib =
+      File(p.join(projectDir, kDfcGptSharedLibPath)).absolute;
+  print('sharedLib: $dfcGptSharedLib');
+
+  if (dfcGptSharedLib.existsSync()) {
+    dfcGptSharedLib.copySync(p.join(destDir.path, kDfcGptSharedLibFilename));
+  } else {
+    print('$kDfcGptSharedLibFilename doesnt exist');
+  }
+}
+
+String homeDirectory() {
+  switch (Platform.operatingSystem) {
+    case 'linux':
+    case 'macos':
+      return Platform.environment['HOME'] ?? '';
+    case 'windows':
+      return Platform.environment['USERPROFILE'] ?? '';
+    default:
+      return '';
   }
 }
