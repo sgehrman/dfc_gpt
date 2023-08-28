@@ -9,9 +9,6 @@ import 'package:path/path.dart' as p;
 // relative to project directory
 const kSourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
 
-// relative to home directory
-const kLinuxDestDirectory = '.local/share/re.distantfutu.deckr/gpt/libs';
-
 const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
 
 // relative to project directory
@@ -24,8 +21,9 @@ void main() {
   final projectDir = Directory.current.path;
 
   final srcDir = Directory(p.join(projectDir, kSourceDirectory)).absolute;
-  final destDir = Directory(p.join(homeDir, kLinuxDestDirectory)).absolute;
+  final destDir = Directory(p.join(homeDir, usersGptLibs())).absolute;
 
+  print('### COPYING: $srcDir');
   print('src: $srcDir');
   print('destDir: $destDir');
 
@@ -41,7 +39,7 @@ void main() {
 
     // copy any .so, .dll, .dylib it can find in the gpt4all build folder
     var files = srcDir.listSync(followLinks: false);
-    files = files.where((e) => e.path.contains('.so')).toList();
+    files = files.where((e) => e.path.contains(libExt())).toList();
 
     for (final file in files) {
       if (file is Link) {
@@ -55,15 +53,30 @@ void main() {
     print('### Error: could not find srcDir');
   }
 
-  // copy over our gpt-lib.so
+  // copy over our libgpt-lib.so
   final dfcGptSharedLib =
       File(p.join(projectDir, kDfcGptSharedLibPath)).absolute;
   print('sharedLib: $dfcGptSharedLib');
 
   if (dfcGptSharedLib.existsSync()) {
-    dfcGptSharedLib.copySync(p.join(destDir.path, kDfcGptSharedLibFilename));
+    dfcGptSharedLib
+        .copySync(p.join(destDir.path, p.basename(dfcGptSharedLib.path)));
   } else {
-    print('$kDfcGptSharedLibFilename doesnt exist');
+    print('### $kDfcGptSharedLibFilename doesnt exist');
+  }
+}
+
+String usersGptLibs() {
+  switch (Platform.operatingSystem) {
+    case 'linux':
+      return '.local/share/re.distantfutu.deckr/gpt/libs';
+    case 'macos':
+      return '-- needs fix --';
+    case 'windows':
+      return '-- needs fix --';
+    default:
+      print('### no home?');
+      return '';
   }
 }
 
@@ -75,6 +88,21 @@ String homeDirectory() {
     case 'windows':
       return Platform.environment['USERPROFILE'] ?? '';
     default:
+      print('### no home?');
+      return '';
+  }
+}
+
+String libExt() {
+  switch (Platform.operatingSystem) {
+    case 'linux':
+      return '.so';
+    case 'macos':
+      return '.dylib';
+    case 'windows':
+      return '.dll';
+    default:
+      print('### no lib ext?');
       return '';
   }
 }
