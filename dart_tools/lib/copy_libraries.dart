@@ -20,10 +20,6 @@ void main() {
   final srcDir = Directory(kSourceDirectory).absolute;
 
   if (srcDir.existsSync()) {
-    var files = srcDir.listSync(followLinks: false);
-
-    files = files.where((e) => e.path.contains('.so')).toList();
-
     final destDir = Directory(kDestDirectory).absolute;
 
     // if dir exists, delete it and recreate
@@ -32,16 +28,12 @@ void main() {
     }
     destDir.createSync();
 
-    // copy over our gpt-lib.so
-    final dfcGptSharedLib = File(kDfcGptSharedLibPath).absolute;
-    if (dfcGptSharedLib.existsSync()) {
-      dfcGptSharedLib.copySync(p.join(destDir.path, kDfcGptSharedLibFilename));
-    } else {
-      print('$kDfcGptSharedLibFilename doesnt exist');
-    }
-
     // set for symlinks
     Directory.current = destDir;
+
+    // copy any .so, .dll, .dylib it can find in the gpt4all build folder
+    var files = srcDir.listSync(followLinks: false);
+    files = files.where((e) => e.path.contains('.so')).toList();
 
     for (final file in files) {
       if (file is Link) {
@@ -50,6 +42,14 @@ void main() {
       } else if (file is File) {
         file.copySync(p.join(destDir.path, p.basename(file.path)));
       }
+    }
+
+    // copy over our gpt-lib.so
+    final dfcGptSharedLib = File(kDfcGptSharedLibPath).absolute;
+    if (dfcGptSharedLib.existsSync()) {
+      dfcGptSharedLib.copySync(p.join(destDir.path, kDfcGptSharedLibFilename));
+    } else {
+      print('$kDfcGptSharedLibFilename doesnt exist');
     }
   } else {
     print('### Error: could not find gpt build files');
