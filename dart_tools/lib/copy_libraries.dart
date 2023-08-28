@@ -9,19 +9,17 @@ import 'package:path/path.dart' as p;
 // relative to project directory
 const kSourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
 
-const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
-
 // relative to project directory
+const kDfcGptSharedLibFilename = 'libdfc-gpt.so';
 const kDfcGptSharedLibPath = 'cppLib/dfc_gpt/build/$kDfcGptSharedLibFilename';
 
 // ===============================================================
 
 void main() {
-  final homeDir = homeDirectory();
   final projectDir = Directory.current.path;
 
   final srcDir = Directory(p.join(projectDir, kSourceDirectory)).absolute;
-  final destDir = Directory(p.join(homeDir, usersGptLibs())).absolute;
+  final destDir = Directory(usersGptLibs()).absolute;
 
   print('### COPYING: $srcDir');
   print('src: $srcDir');
@@ -48,6 +46,8 @@ void main() {
       } else if (file is File) {
         file.copySync(p.join(destDir.path, p.basename(file.path)));
       }
+
+      print(' - copied: ${p.basename(file.path)}');
     }
   } else {
     print('### Error: could not find srcDir');
@@ -69,11 +69,22 @@ void main() {
 String usersGptLibs() {
   switch (Platform.operatingSystem) {
     case 'linux':
-      return '.local/share/re.distantfutu.deckr/gpt/libs';
+      return p.join(
+        homeDirectory(),
+        '.local/share/re.distantfutu.deckr/gpt/libs',
+      );
+
     case 'macos':
-      return '-- needs fix --';
+      return p.join(
+        homeDirectory(),
+        '?????',
+      );
+
     case 'windows':
-      return '-- needs fix --';
+      return p.join(
+        homeDirectory(),
+        '?????',
+      );
     default:
       print('### no home?');
       return '';
