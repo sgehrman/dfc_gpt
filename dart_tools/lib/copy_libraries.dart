@@ -1,5 +1,9 @@
 import 'dart:io';
 
+// ===============================================================
+// this copies libs to the applications .local/share folder for local testing
+// needs paths package to get windows directory...
+
 import 'package:path/path.dart' as p;
 
 const kSourceDirectory =
