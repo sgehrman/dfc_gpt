@@ -5,6 +5,18 @@ set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+# assuming this is needed. It's in the gpt4all make file
+if(APPLE)
+  option(BUILD_UNIVERSAL "Build a Universal binary on macOS" ON)
+  if(BUILD_UNIVERSAL)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "" FORCE)
+  else()
+    if(NOT CMAKE_OSX_ARCHITECTURES)
+      set(CMAKE_OSX_ARCHITECTURES "${CMAKE_HOST_SYSTEM_PROCESSOR}" CACHE STRING "" FORCE)
+    endif()
+  endif()
+endif()
+
 # make windows match linux with a lib prefix
 if(WIN32)
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
