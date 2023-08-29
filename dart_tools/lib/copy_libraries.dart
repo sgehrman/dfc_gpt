@@ -127,18 +127,18 @@ String sourceDir() {
 
 String sharedLibPath() {
   // relative to project directory
-  const sourceDirectory = 'cppLib/dfc_gpt/build/install/lib';
+  const sourceDirectory = 'cppLib/dfc_gpt/build/install';
 
   // relative to project directory
   final filename = 'libdfc-gpt${libExt()}';
 
   switch (Platform.operatingSystem) {
     case 'linux':
-      return '$sourceDirectory/$filename';
+      return '$sourceDirectory/lib/$filename';
     case 'macos':
       return '$sourceDirectory/$filename';
     case 'windows':
-      return '$sourceDirectory/Release/$filename';
+      return '$sourceDirectory/bin/$filename';
     default:
       print('### no sourceDir?');
       return '';
