@@ -48,14 +48,8 @@ $ readelf -d ./libllmodel.so.0
 
 $ chrpath -l ./libllmodel.so.0
 
-https://stackoverflow.com/questions/58997230/cmake-project-fails-to-find-shared-library
-
-# LD_LIBRARY_PATH= LD_DEBUG=libs ldd -v /usr/lib/libevent.so
-
-set_target_properties(foo PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 $ nm libmainlib.dylib | grep Func
 
-https://stackoverflow.com/questions/11429055/cmake-how-create-a-single-shared-library-from-all-static-libraries-of-subprojec
-
 objdump -x executable_or_lib.so|grep RPATH
+
+LD_DEBUG=libs ldd ./libdfc-gpt.so

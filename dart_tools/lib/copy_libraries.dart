@@ -127,7 +127,7 @@ String sourceDir() {
 
 String sharedLibPath() {
   // relative to project directory
-  const sourceDirectory = 'cppLib/dfc_gpt/build';
+  const sourceDirectory = 'cppLib/dfc_gpt/build/install/lib';
 
   // relative to project directory
   final filename = 'libdfc-gpt${libExt()}';

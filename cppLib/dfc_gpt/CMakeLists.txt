@@ -5,6 +5,14 @@ set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
+
+if(APPLE)
+  set(CMAKE_INSTALL_RPATH @loader_path)
+else() 
+  set(CMAKE_INSTALL_RPATH $ORIGIN)
+endif()
+
 # assuming this is needed. It's in the gpt4all make file
 if(APPLE)
   option(BUILD_UNIVERSAL "Build a Universal binary on macOS" ON)
@@ -40,7 +48,7 @@ target_link_directories(library
   PRIVATE 
   ${CMAKE_SOURCE_DIR}/../chatlib/gpt4all/gpt4all-backend/${GPT_BUILD_LOCATION}
 )
- 
+
 set_target_properties(library 
   PROPERTIES
   OUTPUT_NAME "dfc-gpt"
@@ -48,3 +56,5 @@ set_target_properties(library
 )
 
 target_link_libraries(library llmodel)
+
+install(TARGETS library)
