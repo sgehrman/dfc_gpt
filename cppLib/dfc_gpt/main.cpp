@@ -121,6 +121,11 @@ void prompt_thread(llmodel_model model, const char *prompt,
   }
 
   threadMutex.unlock();
+
+  // I've seen some cases where text is getting clipped?
+  // wondering if dart_callback is still in flight?
+  // this could be bullshit. will test
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 void threadedPrompt(llmodel_model model, const char *prompt,
