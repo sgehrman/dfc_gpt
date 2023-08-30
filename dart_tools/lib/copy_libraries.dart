@@ -67,7 +67,13 @@ String usersGptLibs() {
     case 'macos':
       return p.join(
         homeDirectory(),
-        '?????',
+        'Documents',
+        'GitHub',
+        'dfc',
+        'dfc_gpt_plugin',
+        'dfc_gpt_plugin_macos',
+        'macos',
+        'Libraries',
       );
 
     case 'windows':
