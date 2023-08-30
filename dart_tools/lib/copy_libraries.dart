@@ -136,7 +136,7 @@ String sharedLibPath() {
     case 'linux':
       return '$sourceDirectory/lib/$filename';
     case 'macos':
-      return '$sourceDirectory/$filename';
+      return '$sourceDirectory/lib/$filename';
     case 'windows':
       return '$sourceDirectory/bin/$filename';
     default:
