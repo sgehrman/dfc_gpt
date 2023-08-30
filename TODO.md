@@ -72,3 +72,19 @@ https://github.com/woodemi/libusb.dart
 https://github.com/woodemi/quick_usb
 
 https://docs.flutter.dev/packages-and-plugins/developing-packages
+
+// =================================================
+
+```
+
+// cppLib/chatlib/gpt4all/gpt4all-backend/CMakeLists.txt
+
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+
+
+# set_target_properties(llmodel PROPERTIES
+#                               VERSION ${PROJECT_VERSION}
+#                               SOVERSION ${PROJECT_VERSION_MAJOR})
+
+
+```
