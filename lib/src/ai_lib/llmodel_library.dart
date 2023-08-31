@@ -312,7 +312,7 @@ class LLModelLibrary {
 
         if (config.debug) {
           _sendMessageOnCallback(
-            'DEBUG: shutdown',
+            '\n\nDEBUG: shutdown',
           );
         }
         break;
@@ -320,7 +320,7 @@ class LLModelLibrary {
       case 50: // PromptDoneTypeId
         if (config.debug) {
           _sendMessageOnCallback(
-            'DEBUG: prompt finished $param',
+            '\n\nDEBUG: prompt finished $param',
           );
         }
         break;
