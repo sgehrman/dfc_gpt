@@ -28,10 +28,12 @@ class BotIsolate {
     iso.sendPort.send(message);
   }
 
-  Future<void> dispose() async {
-    final iso = await _isolate;
+  void dispose() {
+    if (_privIsoHandle != null) {
+      _privIsoHandle?.sendPort.send(const BotShutdown());
 
-    iso.sendPort.send(const BotShutdown());
+      _privIsoHandle = null;
+    }
   }
 
   // ======================================================

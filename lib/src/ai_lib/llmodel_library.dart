@@ -53,6 +53,14 @@ class LLModelLibrary {
     }
   }
 
+  static void tearDown() {
+    if (_instance == null) {
+      _instance?.dispose();
+
+      _instance = null;
+    }
+  }
+
   static LLModelLibrary get shared {
     if (_instance == null) {
       throw StateError('Call initialize first');

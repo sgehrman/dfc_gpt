@@ -41,11 +41,11 @@ class BotIsolateFunction {
       if (data is BotRequest) {
         requestHandler?.askQuestion(data);
       } else if (data is BotShutdown) {
-        // this should trigger the shutdownCallback above
-        // requestHandler?.dispose();
+        requestHandler?.dispose();
         requestHandler = null;
 
         receivePortSubscription?.cancel();
+        receivePortSubscription = null;
         // receivePort.close();
       } else {
         print('bot isolate function: $data');
@@ -69,15 +69,25 @@ class BotRequestHandler {
   final void Function(String results) callback;
   LLModel? _model;
 
+  Future<void> dispose() async {
+    await _disposeModel();
+
+    LLModelLibrary.tearDown();
+  }
+
+  Future<void> _disposeModel() async {
+    if (_model != null) {
+      // shut down old model gracefully
+      await LLModelLibrary.shared.shutdownGracefully();
+
+      // now we can safely dispose the old model
+      _model?.dispose();
+    }
+  }
+
   Future<void> updateModel(String modelPath) async {
     try {
-      if (_model != null) {
-        // shut down old model gracefully
-        await LLModelLibrary.shared.shutdownGracefully();
-
-        // now we can safely dispose the old model
-        _model?.dispose();
-      }
+      await _disposeModel();
 
       _model = LLModel(
         modelPath: modelPath,

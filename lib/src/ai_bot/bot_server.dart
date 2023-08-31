@@ -17,8 +17,17 @@ class BotServer {
   BotServer._({
     required this.config,
   }) {
-    _setup();
+    _botIsolate = BotIsolate(
+      config: config,
+      callback: (BotIsolateResponse response) {
+        BotClientNotifier().notifyClients(response);
+      },
+    );
   }
+
+  static BotServer? _instance;
+  final BotConfig config;
+  BotIsolate? _botIsolate;
 
   static void initialize({
     required BotConfig config,
@@ -37,17 +46,11 @@ class BotServer {
     return _instance!;
   }
 
-  static BotServer? _instance;
-  final BotConfig config;
-  late BotIsolate _botIsolate;
+  void tearDown() {
+    _botIsolate?.dispose();
 
-  void _setup() {
-    _botIsolate = BotIsolate(
-      config: config,
-      callback: (BotIsolateResponse response) {
-        BotClientNotifier().notifyClients(response);
-      },
-    );
+    // set shared instance to null
+    _instance = null;
   }
 
   Future<void> askQuestion({
@@ -64,12 +67,8 @@ class BotServer {
       ),
     );
 
-    await _botIsolate.send(
+    await _botIsolate?.send(
       BotRequest(modelPath: modelPath, question: question),
     );
-  }
-
-  void shutdown() {
-    _botIsolate.send(const BotShutdown());
   }
 }

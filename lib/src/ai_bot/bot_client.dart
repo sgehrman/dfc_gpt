@@ -23,6 +23,11 @@ class BotClient {
     BotClientNotifier().removeListener(this);
   }
 
+  // tearDown the whole gpt server and free up memory
+  void tearDown() {
+    BotServer.shared.tearDown();
+  }
+
   void askQuestion({
     required String modelPath,
     required String question,
