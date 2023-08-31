@@ -7,6 +7,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
+import 'package:dfc_gpt/src/ai_lib/models/bot_config.dart';
 import 'package:ffi/ffi.dart' as pffi;
 import 'package:path/path.dart' as p;
 
@@ -14,29 +15,20 @@ import 'package:path/path.dart' as p;
 
 class LLModelLibrary {
   factory LLModelLibrary._priv({
-    required String librarySearchPath,
+    required BotConfig config,
     required Function(int tokenId, String response) reponseCallback,
   }) {
     return _instance ??= LLModelLibrary._(
-      librarySearchPath: librarySearchPath,
+      config: config,
       reponseCallback: reponseCallback,
     );
   }
 
   LLModelLibrary._({
-    required this.librarySearchPath,
+    required this.config,
     required this.reponseCallback,
   }) {
-    nativeCallable = ffi.NativeCallable<
-        ffi.Void Function(
-          ffi.Pointer<pffi.Utf8>,
-          ffi.Int32,
-          ffi.Int32,
-        )>.listener(
-      dartCallback,
-    );
-
-    _load();
+    _connectToDynamicLib();
 
     callbackStreamController = StreamController<List<int>>();
 
@@ -50,12 +42,12 @@ class LLModelLibrary {
   // ==================================================
 
   static void initialize({
-    required String librarySearchPath,
+    required BotConfig config,
     required Function(int tokenId, String response) reponseCallback,
   }) {
     if (_instance == null) {
       LLModelLibrary._priv(
-        librarySearchPath: librarySearchPath,
+        config: config,
         reponseCallback: reponseCallback,
       );
     }
@@ -74,7 +66,7 @@ class LLModelLibrary {
   late StreamController<List<int>> callbackStreamController;
   Completer<bool>? _shutdownCompleter;
 
-  final String librarySearchPath;
+  final BotConfig config;
   final void Function(int tokenId, String response) reponseCallback;
   late ffi.NativeCallable<
           ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>
@@ -106,31 +98,7 @@ class LLModelLibrary {
     int tokenId,
     int typeId,
   ) {
-    switch (typeId) {
-      case 10: // prompt
-        // print(message.toDartString());
-        break;
-      case 20: // response
-        LLModelLibrary.shared._processDataFromCallback(
-          tokenId: tokenId,
-          message: message,
-        );
-        break;
-      case 30: // recalculate
-        LLModelLibrary.shared._processDataFromCallback(
-          tokenId: tokenId,
-          message: message,
-        );
-
-        break;
-      case 40: // ShutdownTypeId
-        // called after a shutdown_gracefully call
-        // tell lib to now dispose the model
-
-        LLModelLibrary.shared._shutdownFromCallback();
-
-        break;
-    }
+    LLModelLibrary.shared._handleDartCallback(message, tokenId, typeId);
   }
 
   String _getFileSuffix() {
@@ -145,20 +113,34 @@ class LLModelLibrary {
     }
   }
 
-  void _load() {
+  void _connectToDynamicLib() {
     final pathToLibrary = p.join(
-      librarySearchPath,
+      config.librarySearchPath,
       'libdfc-gpt${_getFileSuffix()}',
     );
     _dynamicLibrary = ffi.DynamicLibrary.open(pathToLibrary);
 
     _initializeMethodBindings();
 
+    // ----------------------------------
+    // initialize dart
+
     final initializeApi = _dynamicLibrary.lookupFunction<
         ffi.IntPtr Function(ffi.Pointer<ffi.Void>),
         int Function(ffi.Pointer<ffi.Void>)>('InitDartApiDL');
 
     initializeApi(ffi.NativeApi.initializeApiDLData);
+
+    // ----------------------------------
+    // setImplementationSearchPath
+
+    _setImplementationSearchPath(
+      path: config.librarySearchPath,
+    );
+
+    // ----------------------------------
+    // set native callback for gpt4all lib
+    // thread safe
 
     final registerCallback = _dynamicLibrary.lookupFunction<
         ffi.Void Function(
@@ -181,6 +163,15 @@ class LLModelLibrary {
                       )>>
               nativeFunction,
         )>('RegisterDartCallback');
+
+    nativeCallable = ffi.NativeCallable<
+        ffi.Void Function(
+          ffi.Pointer<pffi.Utf8>,
+          ffi.Int32,
+          ffi.Int32,
+        )>.listener(
+      dartCallback,
+    );
 
     registerCallback(nativeCallable.nativeFunction);
   }
@@ -285,7 +276,7 @@ class LLModelLibrary {
     });
   }
 
-  void setImplementationSearchPath({
+  void _setImplementationSearchPath({
     required String path,
   }) {
     pffi.using((alloc) {
@@ -295,6 +286,32 @@ class LLModelLibrary {
 
   // =================================================================
   // from callback
+
+  void _handleDartCallback(
+    ffi.Pointer<pffi.Utf8> message,
+    int tokenId,
+    int typeId,
+  ) {
+    switch (typeId) {
+      case 10: // prompt
+        break;
+      case 20: // response
+        LLModelLibrary.shared._processDataFromCallback(
+          tokenId: tokenId,
+          message: message,
+        );
+        break;
+      case 30: // recalculate
+        LLModelLibrary.shared._processDataFromCallback(
+          tokenId: tokenId,
+          message: message,
+        );
+        break;
+      case 40: // ShutdownTypeId
+        LLModelLibrary.shared._shutdownFromCallback();
+        break;
+    }
+  }
 
   void _processDataFromCallback({
     required int tokenId,
@@ -319,6 +336,16 @@ class LLModelLibrary {
   void _shutdownFromCallback() {
     if (_shutdownCompleter != null) {
       _shutdownCompleter!.complete(true);
+    }
+
+    // send shutdown if debug
+    if (config.debug) {
+      pffi.using((alloc) {
+        LLModelLibrary.shared._processDataFromCallback(
+          tokenId: 0,
+          message: 'DEBUG: shutdown'.toNativeUtf8(allocator: alloc),
+        );
+      });
     }
   }
 }

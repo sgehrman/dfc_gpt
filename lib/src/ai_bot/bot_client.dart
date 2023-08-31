@@ -5,13 +5,11 @@ import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
 class BotClient {
   BotClient({
-    required String librarySearchPath,
+    required BotConfig config,
     required this.callback,
-    LLModelPromptConfig? promptConfig,
   }) {
     BotServer.initialize(
-      librarySearchPath: librarySearchPath,
-      promptConfig: promptConfig,
+      config: config,
     );
 
     BotClientNotifier().addListener(this);

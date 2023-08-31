@@ -17,8 +17,7 @@ class BotIsolateFunction {
   static void isolateStart(
     SendPort sendPort,
     RootIsolateToken rootToken,
-    String librarySearchPath,
-    LLModelPromptConfig? promptConfig,
+    BotConfig config,
   ) {
     // errors happen without this
     BackgroundIsolateBinaryMessenger.ensureInitialized(rootToken);
@@ -31,8 +30,7 @@ class BotIsolateFunction {
     final ReceivePort receivePort = ReceivePort();
 
     BotRequestHandler? requestHandler = BotRequestHandler(
-      librarySearchPath: librarySearchPath,
-      promptConfig: promptConfig,
+      config: config,
       callback: (output) {
         final BotResponse response = BotResponse(output: output);
         sendPort.send(response);
@@ -62,13 +60,11 @@ class BotIsolateFunction {
 
 class BotRequestHandler {
   BotRequestHandler({
-    required this.librarySearchPath,
+    required this.config,
     required this.callback,
-    this.promptConfig,
   });
 
-  final String librarySearchPath;
-  final LLModelPromptConfig? promptConfig;
+  final BotConfig config;
 
   final void Function(String results) callback;
   LLModel? _model;
@@ -85,8 +81,7 @@ class BotRequestHandler {
 
       _model = LLModel(
         modelPath: modelPath,
-        promptConfig: promptConfig,
-        librarySearchPath: librarySearchPath,
+        config: config,
         responseCallback: (tokenId, response) {
           callback(response);
         },

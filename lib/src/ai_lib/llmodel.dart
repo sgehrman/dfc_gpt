@@ -5,20 +5,19 @@ import 'dart:io';
 
 import 'package:dfc_gpt/src/ai_lib/llmodel_library.dart';
 import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
-import 'package:dfc_gpt/src/ai_lib/llmodel_prompt_config.dart';
+import 'package:dfc_gpt/src/ai_lib/models/bot_config.dart';
+import 'package:dfc_gpt/src/ai_lib/models/llmodel_prompt_config.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
   LLModel({
     required this.modelPath,
-    required this.librarySearchPath,
-    required this.promptConfig,
+    required this.config,
     required this.responseCallback,
   });
 
   final String modelPath;
-  final String librarySearchPath;
-  final LLModelPromptConfig? promptConfig;
+  final BotConfig config;
   final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
@@ -33,12 +32,8 @@ class LLModel {
       _resetPromptContext();
 
       LLModelLibrary.initialize(
-        librarySearchPath: librarySearchPath,
+        config: config,
         reponseCallback: responseCallback,
-      );
-
-      LLModelLibrary.shared.setImplementationSearchPath(
-        path: librarySearchPath,
       );
 
       if (!File(modelPath).existsSync()) {
@@ -104,23 +99,23 @@ class LLModel {
   // private
 
   void _resetPromptContext() {
-    final config = promptConfig ?? LLModelPromptConfig();
+    final promptConfig = config.promptConfig ?? LLModelPromptConfig();
 
     _promptContext.ref
       ..logits = ffi.nullptr
       ..logits_size = 0
       ..tokens = ffi.nullptr
       ..tokens_size = 0
-      ..n_past = config.nPast
-      ..n_ctx = config.nCtx
-      ..n_predict = config.nPredict
-      ..top_k = config.topK
-      ..top_p = config.topP
-      ..temp = config.temp
-      ..n_batch = config.nBatch
-      ..repeat_penalty = config.repeatPenalty
-      ..repeat_last_n = config.repeatLastN
-      ..context_erase = config.contextErase;
+      ..n_past = promptConfig.nPast
+      ..n_ctx = promptConfig.nCtx
+      ..n_predict = promptConfig.nPredict
+      ..top_k = promptConfig.topK
+      ..top_p = promptConfig.topP
+      ..temp = promptConfig.temp
+      ..n_batch = promptConfig.nBatch
+      ..repeat_penalty = promptConfig.repeatPenalty
+      ..repeat_last_n = promptConfig.repeatLastN
+      ..context_erase = promptConfig.contextErase;
   }
 
   void _logContext() {
