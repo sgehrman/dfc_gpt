@@ -18,7 +18,7 @@ class BotClient {
   // BotClientNotifier calls this
   final void Function(BotIsolateResponse response) callback;
 
-  static int numClients = BotClientNotifier().numClients();
+  static int get numClients => BotClientNotifier().numClients;
 
   // must call dispose!
   void dispose() {

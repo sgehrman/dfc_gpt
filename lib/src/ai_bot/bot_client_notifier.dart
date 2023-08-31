@@ -13,16 +13,14 @@ class BotClientNotifier {
 
   // this is used so we only shutdown if one client
   // if there are two windows open, we don't shutdown
-  int numClients() {
-    return _clients.length;
-  }
+  int get numClients => _clients.length;
 
   void addListener(BotClient client) {
     _clients.add(client);
   }
 
   void removeListener(BotClient client) {
-    print('SNG removed client: ${numClients()}');
+    print('SNG removed client: $numClients');
     _clients.remove(client);
   }
 
