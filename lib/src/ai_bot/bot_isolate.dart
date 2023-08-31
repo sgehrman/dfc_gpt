@@ -58,7 +58,6 @@ class BotIsolate {
           ),
         );
       } else if (data is BotIsolateFinished) {
-        print('### GptIsolateFinished');
         receivePortSubscription?.cancel();
         // receivePort.close();
         // isolate = null;

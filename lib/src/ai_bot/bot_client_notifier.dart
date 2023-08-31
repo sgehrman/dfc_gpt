@@ -20,7 +20,6 @@ class BotClientNotifier {
   }
 
   void removeListener(BotClient client) {
-    print('SNG removed client: $numClients');
     _clients.remove(client);
   }
 

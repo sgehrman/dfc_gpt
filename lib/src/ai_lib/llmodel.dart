@@ -70,6 +70,7 @@ class LLModel {
     required String prompt,
   }) {
     _logContext();
+    // sometimes models get stuck? a reset helps, but some models give a BOS?
     // first token must be BOS?
     // https://github.com/nomic-ai/gpt4all/pull/1023
     // _resetPromptContext();
@@ -118,22 +119,24 @@ class LLModel {
       ..context_erase = promptConfig.contextErase;
   }
 
-  void _logContext() {
-    print('// ----------------------------------------');
-    print('// promptContext');
-    print('logits: ${_promptContext.ref.logits}');
-    print('logits_size: ${_promptContext.ref.logits_size}');
-    print('context_erase: ${_promptContext.ref.context_erase}');
-    print('n_batch: ${_promptContext.ref.n_batch}');
-    print('n_ctx: ${_promptContext.ref.n_ctx}');
-    print('n_past: ${_promptContext.ref.n_past}');
-    print('n_predict: ${_promptContext.ref.n_predict}');
-    print('repeat_last_n: ${_promptContext.ref.repeat_last_n}');
-    print('repeat_penalty: ${_promptContext.ref.repeat_penalty}');
-    print('temp: ${_promptContext.ref.temp}');
-    print('tokens: ${_promptContext.ref.tokens}');
-    print('tokens_size: ${_promptContext.ref.tokens_size}');
-    print('top_k: ${_promptContext.ref.top_k}');
-    print('top_p: ${_promptContext.ref.top_p}');
+  void _logContext({bool enabled = false}) {
+    if (enabled) {
+      print('// ----------------------------------------');
+      print('// promptContext');
+      print('logits: ${_promptContext.ref.logits}');
+      print('logits_size: ${_promptContext.ref.logits_size}');
+      print('context_erase: ${_promptContext.ref.context_erase}');
+      print('n_batch: ${_promptContext.ref.n_batch}');
+      print('n_ctx: ${_promptContext.ref.n_ctx}');
+      print('n_past: ${_promptContext.ref.n_past}');
+      print('n_predict: ${_promptContext.ref.n_predict}');
+      print('repeat_last_n: ${_promptContext.ref.repeat_last_n}');
+      print('repeat_penalty: ${_promptContext.ref.repeat_penalty}');
+      print('temp: ${_promptContext.ref.temp}');
+      print('tokens: ${_promptContext.ref.tokens}');
+      print('tokens_size: ${_promptContext.ref.tokens_size}');
+      print('top_k: ${_promptContext.ref.top_k}');
+      print('top_p: ${_promptContext.ref.top_p}');
+    }
   }
 }
