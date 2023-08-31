@@ -351,17 +351,20 @@ class LLModelLibrary {
       return index;
     }
 
+    // make a copy, _sendMessageOnCallback was crashing below
     final codeUnits = message.cast<Uint8>();
-    callbackStreamController.add(codeUnits.asTypedList(len(codeUnits)));
+    final copy = List<int>.of(codeUnits.asTypedList(len(codeUnits)));
+
+    callbackStreamController.add(copy);
   }
 
   void _sendMessageOnCallback(String message) {
-    // pffi.using((alloc) {
-    //   _processDataFromCallback(
-    //     param: 0,
-    //     message: message.toNativeUtf8(allocator: alloc),
-    //   );
-    // });
+    pffi.using((alloc) {
+      _processDataFromCallback(
+        param: 0,
+        message: message.toNativeUtf8(allocator: alloc),
+      );
+    });
   }
 
   void _shutdownFromCallback() {
