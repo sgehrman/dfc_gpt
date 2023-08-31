@@ -80,7 +80,7 @@ bool response_function(int32_t token_id, const char *response) {
       const char *copy = copyString(response);
       dart_callback(copy, token_id, ResponseTypeId);
     } else {
-      llog("empty string? ");
+      llog("response_function: empty string");
     }
   }
 
