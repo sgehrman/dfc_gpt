@@ -56,7 +56,7 @@ class LLModelLibrary {
   }
 
   static void tearDown() {
-    if (_instance == null) {
+    if (_instance != null) {
       _instance?.dispose();
 
       _instance = null;
