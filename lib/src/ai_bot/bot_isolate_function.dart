@@ -85,15 +85,14 @@ class BotRequestHandler {
 
       _model = LLModel(
         modelPath: modelPath,
+        promptConfig: promptConfig,
+        librarySearchPath: librarySearchPath,
         responseCallback: (tokenId, response) {
           callback(response);
         },
       );
 
-      await _model!.load(
-        librarySearchPath: librarySearchPath,
-        promptConfig: promptConfig,
-      );
+      await _model!.load();
     } catch (err) {
       print('BotRequestHandler error: $err');
     }

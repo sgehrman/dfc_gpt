@@ -11,21 +11,22 @@ import 'package:ffi/ffi.dart';
 class LLModel {
   LLModel({
     required this.modelPath,
+    required this.librarySearchPath,
+    required this.promptConfig,
     required this.responseCallback,
   });
 
   final String modelPath;
+  final String librarySearchPath;
+  final LLModelPromptConfig? promptConfig;
   final void Function(int tokenId, String response) responseCallback;
 
   bool _isLoaded = false;
   late final ffi.Pointer _model;
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
-  Future<void> load({
-    required final String librarySearchPath,
-    LLModelPromptConfig? promptConfig,
-  }) async {
-    promptConfig ??= LLModelPromptConfig();
+  Future<void> load() async {
+    final config = promptConfig ?? LLModelPromptConfig();
 
     final ffi.Pointer<LLModelError> error = calloc<LLModelError>();
 
@@ -36,16 +37,16 @@ class LLModel {
         ..logits_size = 0
         ..tokens = ffi.nullptr
         ..tokens_size = 0
-        ..n_past = promptConfig.nPast
-        ..n_ctx = promptConfig.nCtx
-        ..n_predict = promptConfig.nPredict
-        ..top_k = promptConfig.topK
-        ..top_p = promptConfig.topP
-        ..temp = promptConfig.temp
-        ..n_batch = promptConfig.nBatch
-        ..repeat_penalty = promptConfig.repeatPenalty
-        ..repeat_last_n = promptConfig.repeatLastN
-        ..context_erase = promptConfig.contextErase;
+        ..n_past = config.nPast
+        ..n_ctx = config.nCtx
+        ..n_predict = config.nPredict
+        ..top_k = config.topK
+        ..top_p = config.topP
+        ..temp = config.temp
+        ..n_batch = config.nBatch
+        ..repeat_penalty = config.repeatPenalty
+        ..repeat_last_n = config.repeatLastN
+        ..context_erase = config.contextErase;
 
       LLModelLibrary.initialize(
         librarySearchPath: librarySearchPath,
