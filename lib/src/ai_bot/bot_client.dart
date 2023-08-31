@@ -1,4 +1,5 @@
 import 'package:dfc_gpt/dfc_gpt.dart';
+import 'package:dfc_gpt/src/ai_bot/bot_client_notifier.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_server.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
@@ -13,14 +14,15 @@ class BotClient {
       promptConfig: promptConfig,
     );
 
-    BotServer.shared.addListener(this);
+    BotClientNotifier().addListener(this);
   }
 
+  // BotClientNotifier calls this
   final void Function(BotIsolateResponse response) callback;
 
   // must call dispose!
   void dispose() {
-    BotServer.shared.removeListener(this);
+    BotClientNotifier().removeListener(this);
   }
 
   void askQuestion({

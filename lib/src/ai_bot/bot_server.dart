@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dfc_gpt/dfc_gpt.dart';
+import 'package:dfc_gpt/src/ai_bot/bot_client_notifier.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_isolate.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
@@ -22,8 +23,6 @@ class BotServer {
     _setup();
   }
 
-  // ==================================================
-
   static void initialize({
     required String librarySearchPath,
     required LLModelPromptConfig? promptConfig,
@@ -44,19 +43,9 @@ class BotServer {
   }
 
   static BotServer? _instance;
-
   final String librarySearchPath;
   final LLModelPromptConfig? promptConfig;
-
   late BotIsolate _botIsolate;
-
-  void addListener(BotClient client) {
-    BotClientNotifier().addListener(client);
-  }
-
-  void removeListener(BotClient client) {
-    BotClientNotifier().removeListener(client);
-  }
 
   void _setup() {
     _botIsolate = BotIsolate(
@@ -89,33 +78,5 @@ class BotServer {
 
   void shutdown() {
     _botIsolate.send(const BotShutdown());
-  }
-}
-
-// ============================================================
-
-class BotClientNotifier {
-  factory BotClientNotifier() {
-    return _instance ??= BotClientNotifier._();
-  }
-
-  BotClientNotifier._();
-
-  static BotClientNotifier? _instance;
-  final List<BotClient> _clients = [];
-
-  void addListener(BotClient client) {
-    _clients.add(client);
-  }
-
-  void removeListener(BotClient client) {
-    _clients.remove(client);
-  }
-
-  // called from server
-  void notifyClients(BotIsolateResponse response) {
-    for (final client in _clients) {
-      client.callback(response);
-    }
   }
 }
