@@ -28,6 +28,8 @@ class LLModelLibrary {
     required this.config,
     required this.reponseCallback,
   }) {
+    print('SNG LLModelLibrary created');
+
     _connectToDynamicLib();
 
     callbackStreamController = StreamController<List<int>>();
@@ -93,6 +95,8 @@ class LLModelLibrary {
   late final LLModelShutdownGracefully _llModelShutdownGracefully;
 
   void dispose() {
+    print('SNG LLModelLibrary dispose');
+
     callbackStreamController.close();
 
     // this keeps the isolate alive, must close
@@ -268,6 +272,8 @@ class LLModelLibrary {
     required ffi.Pointer model,
   }) {
     _llModelModelDestroy(model);
+
+    print('SNG modelDestroy');
   }
 
   void prompt({
@@ -320,7 +326,7 @@ class LLModelLibrary {
 
         if (config.debug) {
           _sendMessageOnCallback(
-            '\n\nDEBUG: shutdown',
+            '\n\nDEBUG: graceful shutdown\n\n',
           );
         }
         break;
@@ -328,7 +334,7 @@ class LLModelLibrary {
       case 50: // PromptDoneTypeId
         if (config.debug) {
           _sendMessageOnCallback(
-            '\n\nDEBUG: prompt finished $param',
+            '\n\nDEBUG: prompt finished $param\n\n',
           );
         }
         break;
