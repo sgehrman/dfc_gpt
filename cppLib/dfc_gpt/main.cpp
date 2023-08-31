@@ -18,9 +18,10 @@ enum {
   ResponseTypeId = 20,
   RecalculateTypeId = 30,
   ShutdownTypeId = 40,
+  PromptDoneTypeId = 50,
 };
 
-typedef void (*Dart_Callback)(const char *message, int32_t tokenId,
+typedef void (*Dart_Callback)(const char *message, int32_t param,
                               int32_t typeId);
 
 Dart_Callback dart_callback;
@@ -119,6 +120,8 @@ void prompt_thread(llmodel_model model, const char *prompt,
   if (responses == 0) {
     dart_callback("Sorry, I can't help with that.", 0, ResponseTypeId);
   }
+
+  dart_callback("prompt_done", responses, PromptDoneTypeId);
 
   threadMutex.unlock();
 }

@@ -16,7 +16,7 @@ import 'package:path/path.dart' as p;
 class LLModelLibrary {
   factory LLModelLibrary._priv({
     required BotConfig config,
-    required Function(int tokenId, String response) reponseCallback,
+    required Function(int param, String response) reponseCallback,
   }) {
     return _instance ??= LLModelLibrary._(
       config: config,
@@ -43,7 +43,7 @@ class LLModelLibrary {
 
   static void initialize({
     required BotConfig config,
-    required Function(int tokenId, String response) reponseCallback,
+    required Function(int param, String response) reponseCallback,
   }) {
     if (_instance == null) {
       LLModelLibrary._priv(
@@ -67,7 +67,7 @@ class LLModelLibrary {
   Completer<bool>? _shutdownCompleter;
 
   final BotConfig config;
-  final void Function(int tokenId, String response) reponseCallback;
+  final void Function(int param, String response) reponseCallback;
   late ffi.NativeCallable<
           ffi.Void Function(ffi.Pointer<pffi.Utf8>, ffi.Int32, ffi.Int32)>
       nativeCallable;
@@ -95,10 +95,10 @@ class LLModelLibrary {
   // this is called from native cpp thread and arrives on the main dart thread
   static void dartCallback(
     ffi.Pointer<pffi.Utf8> message,
-    int tokenId,
+    int param,
     int typeId,
   ) {
-    LLModelLibrary.shared._handleDartCallback(message, tokenId, typeId);
+    LLModelLibrary.shared._handleDartCallback(message, param, typeId);
   }
 
   String _getFileSuffix() {
@@ -148,7 +148,7 @@ class LLModelLibrary {
                   ffi.NativeFunction<
                       ffi.Void Function(
                         ffi.Pointer<pffi.Utf8>,
-                        ffi.Int32 tokenId,
+                        ffi.Int32 param,
                         ffi.Int32 type,
                       )>>
               nativeFunction,
@@ -158,7 +158,7 @@ class LLModelLibrary {
                   ffi.NativeFunction<
                       ffi.Void Function(
                         ffi.Pointer<pffi.Utf8>,
-                        ffi.Int32 tokenId,
+                        ffi.Int32 param,
                         ffi.Int32 type,
                       )>>
               nativeFunction,
@@ -289,7 +289,7 @@ class LLModelLibrary {
 
   void _handleDartCallback(
     ffi.Pointer<pffi.Utf8> message,
-    int tokenId,
+    int param,
     int typeId,
   ) {
     switch (typeId) {
@@ -297,24 +297,38 @@ class LLModelLibrary {
         break;
       case 20: // response
         LLModelLibrary.shared._processDataFromCallback(
-          tokenId: tokenId,
+          param: param,
           message: message,
         );
         break;
       case 30: // recalculate
         LLModelLibrary.shared._processDataFromCallback(
-          tokenId: tokenId,
+          param: param,
           message: message,
         );
         break;
       case 40: // ShutdownTypeId
         LLModelLibrary.shared._shutdownFromCallback();
+
+        if (config.debug) {
+          _sendMessageOnCallback(
+            'DEBUG: shutdown',
+          );
+        }
+        break;
+
+      case 50: // PromptDoneTypeId
+        if (config.debug) {
+          _sendMessageOnCallback(
+            'DEBUG: prompt finished $param',
+          );
+        }
         break;
     }
   }
 
   void _processDataFromCallback({
-    required int tokenId,
+    required int param,
     required ffi.Pointer<pffi.Utf8> message,
   }) {
     // NOTE: message.toDartString() doesn't work if the utf8 is broken between glyphs
@@ -333,19 +347,18 @@ class LLModelLibrary {
     callbackStreamController.add(codeUnits.asTypedList(len(codeUnits)));
   }
 
+  void _sendMessageOnCallback(String message) {
+    pffi.using((alloc) {
+      _processDataFromCallback(
+        param: 0,
+        message: message.toNativeUtf8(allocator: alloc),
+      );
+    });
+  }
+
   void _shutdownFromCallback() {
     if (_shutdownCompleter != null) {
       _shutdownCompleter!.complete(true);
-    }
-
-    // send shutdown if debug
-    if (config.debug) {
-      pffi.using((alloc) {
-        LLModelLibrary.shared._processDataFromCallback(
-          tokenId: 0,
-          message: 'DEBUG: shutdown'.toNativeUtf8(allocator: alloc),
-        );
-      });
     }
   }
 }
