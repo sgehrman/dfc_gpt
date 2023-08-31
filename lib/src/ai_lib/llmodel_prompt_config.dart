@@ -28,13 +28,18 @@ class LLModelPromptConfig {
 
   // ** chat app defaults
   int nPast = 0;
-  int nCtx = 1024;
-  int nPredict = 4096; // max length
+  int nCtx = 1024; // 512 default, more than 2048 is bad
+  int nPredict = -1; // default: 128, -1 = infinity
   int topK = 40;
-  double topP = 0.4;
-  double temp = 0.7;
-  int nBatch = 128; // prompt Batch Size
-  double repeatPenalty = 1.18;
+  double topP = 0.4; // 0.9 is default
+  double temp = 0.7; // 0.8 is default
+  int nBatch = 128; // default: 512 prompt Batch Size
+  double repeatPenalty = 1.18; // 1.1 is default
   int repeatLastN = 64; // repeat_penalty_tokens
   double contextErase = 0.55;
 }
+
+// notes: 
+// chatlib/gpt4all/gpt4all-backend/llama.cpp-230511/examples/main/README.md
+
+ 
