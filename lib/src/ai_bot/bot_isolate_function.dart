@@ -37,16 +37,22 @@ class BotIsolateFunction {
       },
     );
 
+    Future<void> doShutdown() async {
+      await requestHandler?.dispose();
+      requestHandler = null;
+
+      await receivePortSubscription?.cancel();
+      receivePortSubscription = null;
+
+      // this kills the isolate
+      sendPort.send(const BotIsolateFinished());
+    }
+
     receivePortSubscription = receivePort.listen((dynamic data) {
       if (data is BotRequest) {
         requestHandler?.askQuestion(data);
       } else if (data is BotShutdown) {
-        requestHandler?.dispose();
-        requestHandler = null;
-
-        receivePortSubscription?.cancel();
-        receivePortSubscription = null;
-        // receivePort.close();
+        doShutdown();
       } else {
         print('bot isolate function: $data');
       }
