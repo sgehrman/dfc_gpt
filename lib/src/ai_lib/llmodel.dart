@@ -26,27 +26,11 @@ class LLModel {
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
   Future<void> load() async {
-    final config = promptConfig ?? LLModelPromptConfig();
-
     final ffi.Pointer<LLModelError> error = calloc<LLModelError>();
 
     try {
       _promptContext = calloc<llmodel_prompt_context>();
-      _promptContext.ref
-        ..logits = ffi.nullptr
-        ..logits_size = 0
-        ..tokens = ffi.nullptr
-        ..tokens_size = 0
-        ..n_past = config.nPast
-        ..n_ctx = config.nCtx
-        ..n_predict = config.nPredict
-        ..top_k = config.topK
-        ..top_p = config.topP
-        ..temp = config.temp
-        ..n_batch = config.nBatch
-        ..repeat_penalty = config.repeatPenalty
-        ..repeat_last_n = config.repeatLastN
-        ..context_erase = config.contextErase;
+      _resetPromptContext();
 
       LLModelLibrary.initialize(
         librarySearchPath: librarySearchPath,
@@ -90,6 +74,9 @@ class LLModel {
   void generate({
     required String prompt,
   }) {
+    _logContext();
+    _resetPromptContext();
+
     LLModelLibrary.shared.prompt(
       model: _model,
       prompt: prompt,
@@ -109,5 +96,47 @@ class LLModel {
     if (_promptContext != ffi.nullptr) {
       calloc.free(_promptContext);
     }
+  }
+
+  // =================================================================
+  // private
+
+  void _resetPromptContext() {
+    final config = promptConfig ?? LLModelPromptConfig();
+
+    _promptContext.ref
+      ..logits = ffi.nullptr
+      ..logits_size = 0
+      ..tokens = ffi.nullptr
+      ..tokens_size = 0
+      ..n_past = config.nPast
+      ..n_ctx = config.nCtx
+      ..n_predict = config.nPredict
+      ..top_k = config.topK
+      ..top_p = config.topP
+      ..temp = config.temp
+      ..n_batch = config.nBatch
+      ..repeat_penalty = config.repeatPenalty
+      ..repeat_last_n = config.repeatLastN
+      ..context_erase = config.contextErase;
+  }
+
+  void _logContext() {
+    print('// ----------------------------------------');
+    print('// promptContext');
+    print('logits: ${_promptContext.ref.logits}');
+    print('logits_size: ${_promptContext.ref.logits_size}');
+    print('context_erase: ${_promptContext.ref.context_erase}');
+    print('n_batch: ${_promptContext.ref.n_batch}');
+    print('n_ctx: ${_promptContext.ref.n_ctx}');
+    print('n_past: ${_promptContext.ref.n_past}');
+    print('n_predict: ${_promptContext.ref.n_predict}');
+    print('repeat_last_n: ${_promptContext.ref.repeat_last_n}');
+    print('repeat_penalty: ${_promptContext.ref.repeat_penalty}');
+    print('temp: ${_promptContext.ref.temp}');
+    print('tokens: ${_promptContext.ref.tokens}');
+    print('tokens_size: ${_promptContext.ref.tokens_size}');
+    print('top_k: ${_promptContext.ref.top_k}');
+    print('top_p: ${_promptContext.ref.top_p}');
   }
 }
