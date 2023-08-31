@@ -22,6 +22,11 @@ toast when dialog is closed
 
 orca mini what is your specialty?
 
+flag for debug messages (shutdown, errors etc.)
+handle token -1?
+
+tear dowm on window close
+
 multiple windows, multiple chats? multiple tabs?
 what if we sent the data directly to the app with https? need tabId?
 
@@ -57,21 +62,6 @@ LD_DEBUG=libs ldd ./libdfc-gpt.so
 https://docs.flutter.dev/platform-integration/macos/c-interop
 
 https://stackoverflow.com/questions/42022884/making-xcode-embed-necessary-dylibs
-
-$ otool -L libcdbc.dylib
-otool -l
-
-install_name_tool?
-
-https://help.apple.com/xcode/mac/11.0/index.html?localePath=en.lproj#/dev51a648b07
-
-https://developer.apple.com/library/archive/technotes/tn2435/_index.html
-
-https://github.com/woodemi/libusb.dart
-
-https://github.com/woodemi/quick_usb
-
-https://docs.flutter.dev/packages-and-plugins/developing-packages
 
 // =================================================
 

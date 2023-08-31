@@ -111,13 +111,13 @@ class LLModelLibrary {
         // print(message.toDartString());
         break;
       case 20: // response
-        LLModelLibrary.shared.processDataFromCallback(
+        LLModelLibrary.shared._processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
         break;
       case 30: // recalculate
-        LLModelLibrary.shared.processDataFromCallback(
+        LLModelLibrary.shared._processDataFromCallback(
           tokenId: tokenId,
           message: message,
         );
@@ -296,20 +296,20 @@ class LLModelLibrary {
   // =================================================================
   // from callback
 
-  void processDataFromCallback({
+  void _processDataFromCallback({
     required int tokenId,
     required ffi.Pointer<pffi.Utf8> message,
   }) {
-    // message.toDartString() doesn't work if the utf8 is broken between glyphs
-    // this works better
+    // NOTE: message.toDartString() doesn't work if the utf8 is broken between glyphs
     int len(Pointer<Uint8> codeUnits) {
-      var length = 0;
+      var index = 0;
 
-      while (codeUnits[length] != 0) {
-        length++;
+      // index < 8192 is probably unnecessary, but might stop an endless loop
+      while (index < 8192 && codeUnits[index] != 0) {
+        index++;
       }
 
-      return length;
+      return index;
     }
 
     final codeUnits = message.cast<Uint8>();
