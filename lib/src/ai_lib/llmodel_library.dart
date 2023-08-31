@@ -356,12 +356,12 @@ class LLModelLibrary {
   }
 
   void _sendMessageOnCallback(String message) {
-    pffi.using((alloc) {
-      _processDataFromCallback(
-        param: 0,
-        message: message.toNativeUtf8(allocator: alloc),
-      );
-    });
+    // pffi.using((alloc) {
+    //   _processDataFromCallback(
+    //     param: 0,
+    //     message: message.toNativeUtf8(allocator: alloc),
+    //   );
+    // });
   }
 
   void _shutdownFromCallback() {
