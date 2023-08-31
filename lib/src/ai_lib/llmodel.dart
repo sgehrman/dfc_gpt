@@ -75,7 +75,9 @@ class LLModel {
     required String prompt,
   }) {
     _logContext();
-    _resetPromptContext();
+    // first token must be BOS?
+    // https://github.com/nomic-ai/gpt4all/pull/1023
+    // _resetPromptContext();
 
     LLModelLibrary.shared.prompt(
       model: _model,
