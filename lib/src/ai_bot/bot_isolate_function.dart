@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:dfc_gpt/dfc_gpt.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 import 'package:dfc_gpt/src/ai_lib/llmodel.dart';
 import 'package:dfc_gpt/src/ai_lib/llmodel_library.dart';
@@ -17,6 +18,7 @@ class BotIsolateFunction {
     SendPort sendPort,
     RootIsolateToken rootToken,
     String librarySearchPath,
+    LLModelPromptConfig? promptConfig,
   ) {
     // errors happen without this
     BackgroundIsolateBinaryMessenger.ensureInitialized(rootToken);
@@ -30,6 +32,7 @@ class BotIsolateFunction {
 
     BotRequestHandler? requestHandler = BotRequestHandler(
       librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
       callback: (output) {
         final BotResponse response = BotResponse(output: output);
         sendPort.send(response);
@@ -61,9 +64,11 @@ class BotRequestHandler {
   BotRequestHandler({
     required this.librarySearchPath,
     required this.callback,
+    this.promptConfig,
   });
 
   final String librarySearchPath;
+  final LLModelPromptConfig? promptConfig;
 
   final void Function(String results) callback;
   LLModel? _model;
@@ -87,6 +92,7 @@ class BotRequestHandler {
 
       await _model!.load(
         librarySearchPath: librarySearchPath,
+        promptConfig: promptConfig,
       );
     } catch (err) {
       print('BotRequestHandler error: $err');

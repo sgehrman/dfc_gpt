@@ -1,20 +1,23 @@
 import 'dart:async';
 
-import 'package:dfc_gpt/src/ai_bot/bot_client.dart';
+import 'package:dfc_gpt/dfc_gpt.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_isolate.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
 class BotServer {
   factory BotServer({
     required String librarySearchPath,
+    required LLModelPromptConfig? promptConfig,
   }) {
     return _instance ??= BotServer._(
       librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
     );
   }
 
   BotServer._({
     required this.librarySearchPath,
+    required this.promptConfig,
   }) {
     _setup();
   }
@@ -23,10 +26,13 @@ class BotServer {
 
   static void initialize({
     required String librarySearchPath,
+    required LLModelPromptConfig? promptConfig,
   }) {
-    if (_instance == null) {
-      BotServer(librarySearchPath: librarySearchPath);
-    }
+    // initialize _instance
+    BotServer(
+      librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
+    );
   }
 
   static BotServer get shared {
@@ -40,6 +46,7 @@ class BotServer {
   static BotServer? _instance;
 
   final String librarySearchPath;
+  final LLModelPromptConfig? promptConfig;
 
   late BotIsolate _botIsolate;
 
@@ -54,6 +61,7 @@ class BotServer {
   void _setup() {
     _botIsolate = BotIsolate(
       librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
       callback: (BotIsolateResponse response) {
         BotClientNotifier().notifyClients(response);
       },

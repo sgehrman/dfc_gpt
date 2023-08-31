@@ -1,3 +1,4 @@
+import 'package:dfc_gpt/dfc_gpt.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_server.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
@@ -5,9 +6,11 @@ class BotClient {
   BotClient({
     required String librarySearchPath,
     required this.callback,
+    LLModelPromptConfig? promptConfig,
   }) {
     BotServer.initialize(
       librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
     );
 
     BotServer.shared.addListener(this);

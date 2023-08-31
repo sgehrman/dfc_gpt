@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:dfc_gpt/dfc_gpt.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_isolate_function.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 import 'package:flutter/services.dart';
@@ -10,9 +11,11 @@ class BotIsolate {
   BotIsolate({
     required this.librarySearchPath,
     required this.callback,
+    required this.promptConfig,
   });
 
   final String librarySearchPath;
+  final LLModelPromptConfig? promptConfig;
   final void Function(BotIsolateResponse response) callback;
 
   _IsolateHandle? _privIsoHandle;
@@ -70,6 +73,7 @@ class BotIsolate {
     isolate = await _spawn(
       sendPort: receivePort.sendPort,
       librarySearchPath: librarySearchPath,
+      promptConfig: promptConfig,
     );
 
     return sendPortCompleter.future;
@@ -81,6 +85,7 @@ class BotIsolate {
   static Future<Isolate> _spawn({
     required SendPort sendPort,
     required String librarySearchPath,
+    required LLModelPromptConfig? promptConfig,
   }) {
     final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
 
@@ -89,6 +94,7 @@ class BotIsolate {
         sendPort,
         rootIsolateToken,
         librarySearchPath,
+        promptConfig,
       ),
       sendPort,
       debugName: 'BotIsolate',
