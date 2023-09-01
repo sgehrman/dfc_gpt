@@ -78,10 +78,7 @@ class LLModel {
 
     String promptTemplate = modelFile.promptTemplate;
     if (promptTemplate.isEmpty) {
-      promptTemplate = '### User:\n%1\n### Response:\n';
-
-      // the chatApp had this set for wizard uncensored
-      // promptTemplate = '### Human:\n%1\n### Assistant:\n';
+      promptTemplate = '### Human: \n%1\n### Assistant:\n';
     }
 
     LLModelLibrary.shared.prompt(
