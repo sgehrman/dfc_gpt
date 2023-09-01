@@ -1,10 +1,19 @@
 
-rm -r gpt4all_source
-mkdir gpt4all_source
+ 
+pushd "shared_libs"
 
-pushd "gpt4all_source"
+if [ ! -d "gpt4all" ]; then
+  echo "cloning repo"
+  git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nomic-ai/gpt4all
+fi
 
-git clone --recurse-submodules https://github.com/nomic-ai/gpt4all
+cd gpt4all
+
+echo "### git pull"
+git pull
+
+echo "### git status"
+git status
 
 popd
  
