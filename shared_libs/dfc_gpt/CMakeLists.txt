@@ -47,7 +47,7 @@ endif()
 
 target_link_directories(library
   PRIVATE 
-  ${CMAKE_SOURCE_DIR}/../chatlib/gpt4all/gpt4all-backend/${GPT_BUILD_LOCATION}
+  ${CMAKE_SOURCE_DIR}/../gpt4all/gpt4all-backend/${GPT_BUILD_LOCATION}
 )
 
 set_target_properties(library 

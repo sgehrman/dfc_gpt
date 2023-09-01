@@ -148,7 +148,7 @@ String libExt() {
 
 String sourceDir() {
   // relative to project directory
-  const sourceDirectory = 'cppLib/chatlib/gpt4all/gpt4all-backend/build';
+  const sourceDirectory = 'shared_libs/gpt4all/gpt4all-backend/build';
 
   switch (Platform.operatingSystem) {
     case 'linux':
@@ -165,7 +165,7 @@ String sourceDir() {
 
 String sharedLibPath() {
   // relative to project directory
-  const sourceDirectory = 'cppLib/dfc_gpt/build/install';
+  const sourceDirectory = 'shared_libs/dfc_gpt/build/install';
 
   // relative to project directory
   final filename = 'libdfc-gpt${libExt()}';

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd "cppLib/dfc_gpt"
+pushd "shared_libs/dfc_gpt"
 
 rm -r build
 mkdir build
@@ -13,5 +13,5 @@ cmake --install .
 
 popd
 
-dart './dart_tools/lib/copy_libraries.dart'
+dart './tools/dart_tools/lib/copy_libraries.dart'
 

@@ -48,7 +48,7 @@ class LLModelPromptConfig {
 
 // ===============================================================
 // NOTES:
-// chatlib/gpt4all/gpt4all-backend/llama.cpp-230511/examples/main/README.md
+// shared_libs/gpt4all/gpt4all-backend/llama.cpp-230511/examples/main/README.md
 
 // ** go defaults
 // int nPast = 0;
