@@ -7,10 +7,25 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 void main() {
-  final projectDir = Directory.current.path;
+  final projectDirPath = Directory.current.path;
 
-  final srcDir = Directory(p.join(projectDir, sourceDir())).absolute;
-  final destDir = Directory(usersGptLibs()).absolute;
+  _copyLibraries(
+    destDirPath: usersGptLibs(),
+    projectDirPath: projectDirPath,
+  );
+
+  _copyLibraries(
+    destDirPath: p.join(projectDirPath, builtDirectory()),
+    projectDirPath: projectDirPath,
+  );
+}
+
+void _copyLibraries({
+  required String projectDirPath,
+  required String destDirPath,
+}) {
+  final srcDir = Directory(p.join(projectDirPath, sourceDir())).absolute;
+  final destDir = Directory(destDirPath).absolute;
 
   print('### COPYING: $srcDir');
   print('src: $srcDir');
@@ -45,7 +60,8 @@ void main() {
   }
 
   // copy over our libgpt-lib.so
-  final dfcGptSharedLib = File(p.join(projectDir, sharedLibPath())).absolute;
+  final dfcGptSharedLib =
+      File(p.join(projectDirPath, sharedLibPath())).absolute;
   print('sharedLib: $dfcGptSharedLib');
 
   if (dfcGptSharedLib.existsSync()) {
@@ -93,6 +109,23 @@ String homeDirectory() {
       return Platform.environment['HOME'] ?? '';
     case 'windows':
       return Platform.environment['USERPROFILE'] ?? '';
+    default:
+      print('### no home?');
+      return '';
+  }
+}
+
+String builtDirectory() {
+  switch (Platform.operatingSystem) {
+    case 'linux':
+      return 'built_libs_linux';
+    case 'macos':
+      return p.join(
+        'macos',
+        'Libraries',
+      );
+    case 'windows':
+      return 'built_libs_windows';
     default:
       print('### no home?');
       return '';
