@@ -9,7 +9,10 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
   The podspec file loads the Libraries folder into the macOS bundle
   so they can get signed and packed up
 
-  The linux and windows code is just there to look complete, but they are worthless
+  The linux and windows code is just there to look complete, but they do nothing
+
+  on linux we package the models with flatpak
+  on windows, we copy the models to the app folder on build
 
 */
 

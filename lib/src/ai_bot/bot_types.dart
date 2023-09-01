@@ -1,3 +1,5 @@
+import 'package:dfc_gpt/src/ai_lib/models/gpt_model_file.dart';
+
 class BotIsolateResponse {
   const BotIsolateResponse({
     required this.type,
@@ -14,11 +16,11 @@ class BotIsolateResponse {
 
 class BotRequest {
   const BotRequest({
-    required this.modelPath,
+    required this.modelFile,
     required this.question,
   });
 
-  final String modelPath;
+  final GptModelFile modelFile;
   final String question;
 }
 

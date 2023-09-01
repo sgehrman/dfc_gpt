@@ -31,10 +31,10 @@ class BotClient {
   }
 
   void askQuestion({
-    required String modelPath,
+    required GptModelFile modelFile,
     required String question,
   }) {
-    BotServer.shared.askQuestion(modelPath: modelPath, question: question);
+    BotServer.shared.askQuestion(modelFile: modelFile, question: question);
   }
 
   void shutdown() {

@@ -54,7 +54,7 @@ class BotServer {
   }
 
   Future<void> askQuestion({
-    required String modelPath,
+    required GptModelFile modelFile,
     required String question,
   }) async {
     // send question asked from use first
@@ -68,7 +68,7 @@ class BotServer {
     );
 
     await _botIsolate?.send(
-      BotRequest(modelPath: modelPath, question: question),
+      BotRequest(modelFile: modelFile, question: question),
     );
   }
 }

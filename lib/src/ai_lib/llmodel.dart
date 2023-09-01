@@ -6,17 +6,18 @@ import 'dart:io';
 import 'package:dfc_gpt/src/ai_lib/llmodel_library.dart';
 import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
 import 'package:dfc_gpt/src/ai_lib/models/bot_config.dart';
+import 'package:dfc_gpt/src/ai_lib/models/gpt_model_file.dart';
 import 'package:dfc_gpt/src/ai_lib/models/llmodel_prompt_config.dart';
 import 'package:ffi/ffi.dart';
 
 class LLModel {
   LLModel({
-    required this.modelPath,
+    required this.modelFile,
     required this.config,
     required this.responseCallback,
   });
 
-  final String modelPath;
+  final GptModelFile modelFile;
   final BotConfig config;
   final void Function(int tokenId, String response) responseCallback;
 
@@ -36,12 +37,12 @@ class LLModel {
         reponseCallback: responseCallback,
       );
 
-      if (!File(modelPath).existsSync()) {
-        throw Exception('Model file does not exist: $modelPath');
+      if (!File(modelFile.path).existsSync()) {
+        throw Exception('Model file does not exist: ${modelFile.path}');
       }
 
       _model = LLModelLibrary.shared.modelCreate2(
-        modelPath: modelPath,
+        modelPath: modelFile.path,
         buildVariant: 'auto',
         error: error,
       );
@@ -53,7 +54,7 @@ class LLModel {
 
       LLModelLibrary.shared.loadModel(
         model: _model,
-        modelPath: modelPath,
+        modelPath: modelFile.path,
       );
 
       if (LLModelLibrary.shared.isModelLoaded(model: _model)) {
@@ -75,12 +76,17 @@ class LLModel {
     // https://github.com/nomic-ai/gpt4all/pull/1023
     // _resetPromptContext();
 
-    // final promptTemplate = '### User:\n$prompt\n### Response:\n';
-    final promptTemplate = '### Human:\n$prompt\n### Assistant:\n';
+    String promptTemplate = modelFile.promptTemplate;
+    if (promptTemplate.isEmpty) {
+      promptTemplate = '### User:\n%1\n### Response:\n';
+
+      // the chatApp had this set for wizard uncensored
+      // promptTemplate = '### Human:\n%1\n### Assistant:\n';
+    }
 
     LLModelLibrary.shared.prompt(
       model: _model,
-      prompt: promptTemplate,
+      prompt: promptTemplate.replaceFirst('%1', prompt),
       promptContext: _promptContext,
     );
   }

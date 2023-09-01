@@ -91,12 +91,12 @@ class BotRequestHandler {
     }
   }
 
-  Future<void> updateModel(String modelPath) async {
+  Future<void> updateModel(GptModelFile modelFile) async {
     try {
       await _disposeModel();
 
       _model = LLModel(
-        modelPath: modelPath,
+        modelFile: modelFile,
         config: config,
         responseCallback: (tokenId, response) {
           callback(response);
@@ -110,9 +110,9 @@ class BotRequestHandler {
   }
 
   Future<void> askQuestion(BotRequest request) async {
-    if (_model == null || _model!.modelPath != request.modelPath) {
+    if (_model == null || _model!.modelFile.path != request.modelFile.path) {
       // need to rebuild with new model first
-      await updateModel(request.modelPath);
+      await updateModel(request.modelFile);
     } else {
       // interrupt any message still being answered
       await LLModelLibrary.shared.shutdownGracefully();
