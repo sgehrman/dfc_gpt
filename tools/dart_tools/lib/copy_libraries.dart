@@ -118,14 +118,20 @@ String homeDirectory() {
 String builtDirectory() {
   switch (Platform.operatingSystem) {
     case 'linux':
-      return 'built_libs_linux';
+      return p.join(
+        'shared_libs',
+        'built_libs_linux',
+      );
     case 'macos':
       return p.join(
         'macos',
         'Libraries',
       );
     case 'windows':
-      return 'built_libs_windows';
+      return p.join(
+        'shared_libs',
+        'built_libs_windows',
+      );
     default:
       print('### no home?');
       return '';

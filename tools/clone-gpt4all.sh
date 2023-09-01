@@ -32,4 +32,7 @@ popd
 #                               VERSION ${PROJECT_VERSION}
 #                               SOVERSION ${PROJECT_VERSION_MAJOR})
 
- 
+# comment these out
+# if(NOT APPLE)
+#   set(LLAMA_KOMPUTE YES)
+# endif()
