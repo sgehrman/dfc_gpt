@@ -2,11 +2,11 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
 #
 Pod::Spec.new do |s|
-  s.name             = 'dfc_gpt_plugin_macos'
+  s.name             = 'dfc_gpt_macos'
   s.version          = '0.0.1'
-  s.summary          = 'A macOS implementation of the dfc_gpt_plugin plugin.'
+  s.summary          = 'A macOS implementation of the dfc_gpt plugin.'
   s.description      = <<-DESC
-  A macOS implementation of the dfc_gpt_plugin plugin.
+  A macOS implementation of the dfc_gpt plugin.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :type => 'BSD', :file => '../LICENSE' }
