@@ -28,6 +28,6 @@ flutter:
       linux:
         dartPluginClass: LinuxPlugin
       macos:
-        pluginClass: MacOSPlugin
+        pluginClass: DfcGptPlugin
       windows:
         dartPluginClass: WindowsPlugin
