@@ -75,9 +75,12 @@ class LLModel {
     // https://github.com/nomic-ai/gpt4all/pull/1023
     // _resetPromptContext();
 
+    // final promptTemplate = '### User:\n$prompt\n### Response:\n';
+    final promptTemplate = '### Human:\n$prompt\n### Assistant:\n';
+
     LLModelLibrary.shared.prompt(
       model: _model,
-      prompt: prompt,
+      prompt: promptTemplate,
       promptContext: _promptContext,
     );
   }
