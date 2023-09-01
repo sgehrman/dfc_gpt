@@ -120,7 +120,7 @@ String builtDirectory() {
     case 'linux':
       return p.join(
         'shared_libs',
-        'built_libs_linux',
+        'linux',
       );
     case 'macos':
       return p.join(
@@ -130,7 +130,7 @@ String builtDirectory() {
     case 'windows':
       return p.join(
         'shared_libs',
-        'built_libs_windows',
+        'windows',
       );
     default:
       print('### no home?');
