@@ -70,8 +70,7 @@ String usersGptLibs() {
         'Documents',
         'GitHub',
         'dfc',
-        'dfc_gpt_plugin',
-        'dfc_gpt_plugin_macos',
+        'dfc_gpt',
         'macos',
         'Libraries',
       );
