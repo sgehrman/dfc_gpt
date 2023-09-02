@@ -4,7 +4,7 @@ pushd "shared_libs"
 
 if [ ! -d "gpt4all" ]; then
   echo "cloning repo"
-  git clone --depth=1 --recurse-submodules --shallow-submodules https://github.com/nomic-ai/gpt4all
+  git clone --recurse-submodules https://github.com/nomic-ai/gpt4all
 fi
 
 cd gpt4all
