@@ -2,7 +2,7 @@
 
 pushd "shared_libs/dfc_gpt"
 
-rm -r build
+rm -rf build
 mkdir build
 cd build
 cmake ..
