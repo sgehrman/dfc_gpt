@@ -1,3 +1,5 @@
+#!/bin/bash
+
 pushd "shared_libs/gpt4all/gpt4all-backend"
 
 rm -rf build
