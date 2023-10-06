@@ -94,7 +94,7 @@ String usersGptLibs() {
     case 'windows':
       return p.join(
         homeDirectory(),
-        'AppData/Roaming/re.distantfutu/dashboard/gpt/libs',
+        'AppData/Roaming/re.distantfutu/deckr/gpt/libs',
       );
     default:
       print('### no home?');
