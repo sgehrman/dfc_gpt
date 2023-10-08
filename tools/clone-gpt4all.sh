@@ -29,7 +29,4 @@ popd
 #                               VERSION ${PROJECT_VERSION}
 #                               SOVERSION ${PROJECT_VERSION_MAJOR})
 
-# comment these out
-# if(NOT APPLE)
-#   set(LLAMA_KOMPUTE YES)
-# endif()
+# COMMAND ${CMAKE_BINARY_DIR}/bin/$<CONFIG>/xxd -i ${spv_file} >> ${OUTPUT_HEADER_FILE}
