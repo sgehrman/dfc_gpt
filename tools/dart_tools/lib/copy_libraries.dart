@@ -35,7 +35,7 @@ void _copyLibraries({
   if (destDir.existsSync()) {
     destDir.deleteSync(recursive: true);
   }
-  destDir.createSync();
+  destDir.createSync(recursive: true);
 
   if (srcDir.existsSync()) {
     // set for symlinks
