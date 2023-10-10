@@ -83,12 +83,11 @@ String usersGptLibs() {
     case 'macos':
       return p.join(
         homeDirectory(),
-        'Documents',
-        'GitHub',
-        'dfc',
-        'dfc_gpt',
-        'macos',
-        'Libraries',
+        'Library',
+        'Application Support',
+        're.distantfutu.deckr',
+        'gpt',
+        'libs',
       );
 
     case 'windows':
