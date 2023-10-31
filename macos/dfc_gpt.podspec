@@ -16,6 +16,7 @@ Pod::Spec.new do |s|
   s.dependency 'FlutterMacOS'
 
   s.vendored_libraries = 'Libraries/**/*'
+  s.resources = ['Resources/*']
 
   s.platform = :osx
   s.osx.deployment_target = '11.0'
