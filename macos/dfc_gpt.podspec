@@ -16,7 +16,10 @@ Pod::Spec.new do |s|
   s.dependency 'FlutterMacOS'
 
   s.vendored_libraries = 'Libraries/**/*'
-  s.resources = ['Resources/**/*']
+
+  # we need this in the main bundle, this seems to put it in the dfc_gpt framework
+  # we will copy this file when building the host app
+  # s.resources = ['Resources/**/*']
 
   s.platform = :osx
   s.osx.deployment_target = '11.0'
