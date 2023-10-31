@@ -18,6 +18,28 @@ void main() {
     destDirPath: p.join(projectDirPath, builtDirectory()),
     projectDirPath: projectDirPath,
   );
+
+  // mac only, move metal file to macos/Resources
+  if (Platform.operatingSystem == 'macos') {
+    final srcDir = Directory(p.join(projectDirPath, sourceDir())).absolute;
+
+    final srcFile = File(p.join(srcDir.path, 'bin', 'ggml-metal.metal'));
+    final destDir = Directory(
+      p.join(
+        projectDirPath,
+        'macos',
+        'Resources',
+      ),
+    );
+
+    // if dir exists, delete it and recreate
+    if (destDir.existsSync()) {
+      destDir.deleteSync(recursive: true);
+    }
+    destDir.createSync(recursive: true);
+
+    srcFile.copySync(p.join(destDir.path, p.basename(srcFile.path)));
+  }
 }
 
 void _copyLibraries({
