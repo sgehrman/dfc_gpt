@@ -245,7 +245,7 @@ class LLModelLibrary {
   ffi.Pointer modelCreate2({
     required String modelPath,
     required String buildVariant,
-    required ffi.Pointer<LLModelError> error,
+    required ffi.Pointer<ffi.Pointer<pffi.Utf8>> error,
   }) {
     return pffi.using((alloc) {
       return _llModelModelCreate2(

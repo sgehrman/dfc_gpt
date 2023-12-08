@@ -8,6 +8,7 @@ import 'package:dfc_gpt/src/ai_lib/llmodel_library_types.dart';
 import 'package:dfc_gpt/src/ai_lib/models/bot_config.dart';
 import 'package:dfc_gpt/src/ai_lib/models/gpt_model_file.dart';
 import 'package:dfc_gpt/src/ai_lib/models/llmodel_prompt_config.dart';
+import 'package:ffi/ffi.dart' as pffi;
 import 'package:ffi/ffi.dart';
 
 class LLModel {
@@ -26,7 +27,7 @@ class LLModel {
   late final ffi.Pointer<llmodel_prompt_context> _promptContext;
 
   Future<void> load() async {
-    final ffi.Pointer<LLModelError> error = calloc<LLModelError>();
+    final error = calloc<ffi.Pointer<pffi.Utf8>>();
 
     try {
       _promptContext = calloc<llmodel_prompt_context>();
@@ -48,7 +49,7 @@ class LLModel {
       );
 
       if (_model.address == ffi.nullptr.address) {
-        final String errorMsg = error.ref.message.toDartString();
+        final String errorMsg = error.value.toDartString();
         throw Exception('Could not load gpt4all backend: $errorMsg');
       }
 

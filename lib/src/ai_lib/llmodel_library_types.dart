@@ -16,12 +16,12 @@ typedef LLModelLoadModel = bool Function(ffi.Pointer, ffi.Pointer<pffi.Utf8>);
 typedef llmodel_model_create2_func = ffi.Pointer Function(
   ffi.Pointer<pffi.Utf8>,
   ffi.Pointer<pffi.Utf8>,
-  ffi.Pointer<LLModelError>,
+  ffi.Pointer<ffi.Pointer<pffi.Utf8>>,
 );
 typedef LLModelModelCreate2 = ffi.Pointer Function(
   ffi.Pointer<pffi.Utf8>,
   ffi.Pointer<pffi.Utf8>,
-  ffi.Pointer<LLModelError>,
+  ffi.Pointer<ffi.Pointer<pffi.Utf8>>,
 );
 
 typedef llmodel_model_destroy_func = ffi.Void Function(ffi.Pointer);
@@ -53,15 +53,6 @@ typedef LLModelSetImplementationSearchPath = void Function(
 
 typedef llmodel_shutdown_gracefully_func = ffi.Void Function();
 typedef LLModelShutdownGracefully = void Function();
-
-// =================================================
-
-final class LLModelError extends ffi.Struct {
-  external ffi.Pointer<pffi.Utf8> message;
-
-  @ffi.Int32()
-  external int code;
-}
 
 // =================================================
 

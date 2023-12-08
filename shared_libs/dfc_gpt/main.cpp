@@ -142,7 +142,7 @@ void threadedPrompt(llmodel_model model, const char *prompt,
 
 llmodel_model dfc_llmodel_model_create2(const char *model_path,
                                         const char *build_variant,
-                                        llmodel_error *error) {
+                                        const char **error) {
   return llmodel_model_create2(model_path, build_variant, error);
 }
 
