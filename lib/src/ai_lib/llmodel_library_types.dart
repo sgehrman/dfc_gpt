@@ -10,8 +10,13 @@ typedef LLModelIsModelLoaded = bool Function(ffi.Pointer);
 typedef llmodel_loadModel_func = ffi.Bool Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
+  ffi.Int32 n_ctx,
 );
-typedef LLModelLoadModel = bool Function(ffi.Pointer, ffi.Pointer<pffi.Utf8>);
+typedef LLModelLoadModel = bool Function(
+  ffi.Pointer,
+  ffi.Pointer<pffi.Utf8>,
+  int n_ctx,
+);
 
 typedef llmodel_model_create2_func = ffi.Pointer Function(
   ffi.Pointer<pffi.Utf8>,

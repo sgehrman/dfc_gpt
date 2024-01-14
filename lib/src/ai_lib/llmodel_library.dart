@@ -238,7 +238,11 @@ class LLModelLibrary {
     required String modelPath,
   }) {
     return pffi.using((alloc) {
-      return _llModelLoadModel(model, modelPath.toNativeUtf8(allocator: alloc));
+      return _llModelLoadModel(
+        model,
+        modelPath.toNativeUtf8(allocator: alloc),
+        2048,
+      );
     });
   }
 

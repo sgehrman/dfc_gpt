@@ -150,15 +150,17 @@ void dfc_llmodel_model_destroy(llmodel_model model) {
   llmodel_model_destroy(model);
 }
 
-size_t dfc_llmodel_required_mem(llmodel_model model, const char *model_path) {
-  return llmodel_required_mem(model, model_path);
+size_t dfc_llmodel_required_mem(llmodel_model model, const char *model_path,
+                                int n_ctx) {
+  return llmodel_required_mem(model, model_path, n_ctx);
 }
 
-bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path) {
+bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path,
+                           int n_ctx) {
   // not sure if necessary, remove later
   const char *model_path_copy = copyString(model_path);
 
-  return llmodel_loadModel(model, model_path_copy);
+  return llmodel_loadModel(model, model_path_copy, n_ctx);
 }
 
 bool dfc_llmodel_isModelLoaded(llmodel_model model) {
