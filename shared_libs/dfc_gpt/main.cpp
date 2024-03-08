@@ -186,7 +186,7 @@ void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
                         llmodel_prompt_context *ctx) {
   // not sure if necessary, remove later
   const char *promptCopy = copyString(prompt);
-  const char *promptTemplateCopy = copyString(prompt);
+  const char *promptTemplateCopy = copyString(promptTemplate);
 
   threadedPrompt(model, promptCopy, promptTemplateCopy, ctx);
 }
