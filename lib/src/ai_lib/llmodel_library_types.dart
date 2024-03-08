@@ -11,11 +11,13 @@ typedef llmodel_loadModel_func = ffi.Bool Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
   ffi.Int32 n_ctx,
+  ffi.Int32 ngl,
 );
 typedef LLModelLoadModel = bool Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
   int n_ctx,
+  int ngl,
 );
 
 typedef llmodel_model_create2_func = ffi.Pointer Function(
@@ -41,10 +43,12 @@ typedef LLModelResponseCallback = bool Function(int, ffi.Pointer<pffi.Utf8>);
 typedef llmodel_prompt_func = ffi.Void Function(
   ffi.Pointer,
   ffi.Pointer<pffi.Utf8>,
+  ffi.Pointer<pffi.Utf8>,
   ffi.Pointer<llmodel_prompt_context>,
 );
 typedef LLModelPrompt = void Function(
   ffi.Pointer,
+  ffi.Pointer<pffi.Utf8>,
   ffi.Pointer<pffi.Utf8>,
   ffi.Pointer<llmodel_prompt_context>,
 );

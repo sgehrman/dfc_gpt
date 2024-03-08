@@ -84,7 +84,8 @@ class LLModel {
 
     LLModelLibrary.shared.prompt(
       model: _model,
-      prompt: promptTemplate.replaceFirst('%1', prompt),
+      prompt: prompt,
+      promptTemplate: promptTemplate,
       promptContext: _promptContext,
     );
   }

@@ -242,6 +242,7 @@ class LLModelLibrary {
         model,
         modelPath.toNativeUtf8(allocator: alloc),
         2048,
+        100,
       );
     });
   }
@@ -277,12 +278,14 @@ class LLModelLibrary {
   void prompt({
     required ffi.Pointer model,
     required String prompt,
+    required String promptTemplate,
     required ffi.Pointer<llmodel_prompt_context> promptContext,
   }) {
     pffi.using((alloc) {
       _llModelPrompt(
         model,
         prompt.toNativeUtf8(allocator: alloc),
+        promptTemplate.toNativeUtf8(allocator: alloc),
         promptContext,
       );
     });

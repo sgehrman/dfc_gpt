@@ -110,11 +110,11 @@ void dfc_shutdown_gracefully() {
 // thread function
 
 void prompt_thread(llmodel_model model, const char *prompt,
-                   llmodel_prompt_context *ctx) {
+                   const char *prompt_template, llmodel_prompt_context *ctx) {
   responses = 0;
 
-  llmodel_prompt(model, prompt, prompt_function, response_function,
-                 recalculate_function, ctx);
+  llmodel_prompt(model, prompt, prompt_template, prompt_function,
+                 response_function, recalculate_function, ctx, false);
 
   // some questions get nothing, send something back
   if (responses == 0) {
@@ -127,12 +127,13 @@ void prompt_thread(llmodel_model model, const char *prompt,
 }
 
 void threadedPrompt(llmodel_model model, const char *prompt,
-                    llmodel_prompt_context *ctx) {
+                    const char *promptTemplate, llmodel_prompt_context *ctx) {
   running = false;
   threadMutex.lock();
   running = true;
 
-  std::thread t = std::thread(prompt_thread, model, prompt, ctx);
+  std::thread t =
+      std::thread(prompt_thread, model, prompt, promptTemplate, ctx);
 
   t.detach();
 }
@@ -151,16 +152,16 @@ void dfc_llmodel_model_destroy(llmodel_model model) {
 }
 
 size_t dfc_llmodel_required_mem(llmodel_model model, const char *model_path,
-                                int n_ctx) {
-  return llmodel_required_mem(model, model_path, n_ctx);
+                                int n_ctx, int ngl) {
+  return llmodel_required_mem(model, model_path, n_ctx, ngl);
 }
 
 bool dfc_llmodel_loadModel(llmodel_model model, const char *model_path,
-                           int n_ctx) {
+                           int n_ctx, int ngl) {
   // not sure if necessary, remove later
   const char *model_path_copy = copyString(model_path);
 
-  return llmodel_loadModel(model, model_path_copy, n_ctx);
+  return llmodel_loadModel(model, model_path_copy, n_ctx, ngl);
 }
 
 bool dfc_llmodel_isModelLoaded(llmodel_model model) {
@@ -181,11 +182,13 @@ uint64_t dfc_llmodel_restore_state_data(llmodel_model model,
 }
 
 void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
+                        const char *promptTemplate,
                         llmodel_prompt_context *ctx) {
   // not sure if necessary, remove later
   const char *promptCopy = copyString(prompt);
+  const char *promptTemplateCopy = copyString(prompt);
 
-  threadedPrompt(model, promptCopy, ctx);
+  threadedPrompt(model, promptCopy, promptTemplateCopy, ctx);
 }
 
 float *dfc_llmodel_embedding(llmodel_model model, const char *text,
