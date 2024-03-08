@@ -82,6 +82,8 @@ class LLModel {
       promptTemplate = '### Human: \n%1\n### Assistant:\n';
     }
 
+    print(promptTemplate);
+
     LLModelLibrary.shared.prompt(
       model: _model,
       prompt: prompt,
