@@ -8,9 +8,9 @@ environment:
 
 dependencies:
   intl: ^0.19.0
-  path: ^1.8.3
-  xml: ^6.3.0
-  yaml_edit: ^2.2.0
+  path: ^1.9.0
+  xml: ^6.5.0
+  yaml_edit: ^2.2.1
 
 dev_dependencies:
   # must include this with dfc_lints. see https://github.com/dart-code-checker/dart-code-metrics/issues/254
