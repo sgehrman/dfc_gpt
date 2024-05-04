@@ -127,7 +127,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f50868444b90a9f6dd6e04660e567554d89cb4e4
+      resolved-ref: b0875e074d45816f449ce37b78514d0dba2bde8a
       url: "https://github.com/sgehrman/dfc_lints"
     source: git
     version: "1.0.6"
@@ -332,4 +332,4 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=3.3.0 <3.6.0"
+  dart: ">=3.3.4 <3.6.0"

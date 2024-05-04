@@ -15,7 +15,8 @@
     "quickfix.insertSemicolon": "explicit",
     "source.fixAll.eslint": "explicit"
   },
-
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "all",
   "editor.formatOnSave": true,
   "files.associations": {
     "cctype": "cpp",
