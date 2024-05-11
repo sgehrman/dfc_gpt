@@ -3,8 +3,8 @@ project(dfc_gpt)
 
 # updated to compile on laptop, see also ./tools/build-lib.sh - needed for atomic
 # $ sudo apt install gcc-12
-# set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_CXX_COMPILER /usr/bin/g++-12)
+set(CMAKE_CXX_COMPILER /usr/bin/g++)
+# set(CMAKE_CXX_COMPILER /usr/bin/g++-12)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)

@@ -8,8 +8,10 @@ cd build
 
 # added to compile on laptop, see also ./shared_libs/dfc_gpt/CMakeLists.txt - needed for atomic
 # $ sudo apt install gcc-12
-export CC=/usr/bin/gcc-12
-export CXX=/usr/bin/g++-12
+# export CC=/usr/bin/gcc-12
+# export CXX=/usr/bin/g++-12
+export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++
 
 cmake ..
 cmake --build . --parallel --config Release
