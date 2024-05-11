@@ -92,6 +92,9 @@ final class llmodel_prompt_context extends ffi.Struct {
   external double top_p;
 
   @ffi.Float()
+  external double min_p;
+
+  @ffi.Float()
   external double temp;
 
   @ffi.Int32()

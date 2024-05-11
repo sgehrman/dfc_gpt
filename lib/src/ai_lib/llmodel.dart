@@ -120,6 +120,7 @@ class LLModel {
       ..n_predict = promptConfig.nPredict
       ..top_k = promptConfig.topK
       ..top_p = promptConfig.topP
+      ..min_p = promptConfig.minP
       ..temp = promptConfig.temp
       ..n_batch = promptConfig.nBatch
       ..repeat_penalty = promptConfig.repeatPenalty
@@ -145,6 +146,7 @@ class LLModel {
       print('tokens_size: ${_promptContext.ref.tokens_size}');
       print('top_k: ${_promptContext.ref.top_k}');
       print('top_p: ${_promptContext.ref.top_p}');
+      print('min_p: ${_promptContext.ref.min_p}');
     }
   }
 }

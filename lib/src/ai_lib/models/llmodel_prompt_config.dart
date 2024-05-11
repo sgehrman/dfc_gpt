@@ -14,6 +14,7 @@ class LLModelPromptConfig {
     this.nPredict = 4096, // default: 128, -1 = infinity
     this.topK = 40, // 40 is default
     this.topP = 0.4, // 0.9 is default
+    this.minP = 0.05, // 0.05 is default
     this.temp = 0.7, // 0.8 is default
     this.nBatch = 128, // default: 512 prompt Batch Size
     this.repeatPenalty = 1.18, // 1.1 is default
@@ -32,6 +33,7 @@ class LLModelPromptConfig {
   final int nPredict; // default: 128, -1 = infinity
   final int topK;
   final double topP; // 0.9 is default
+  final double minP; // 0.05 is default
   final double temp; // 0.8 is default
   final int nBatch; // default: 512 prompt Batch Size
   final double repeatPenalty; // 1.1 is default

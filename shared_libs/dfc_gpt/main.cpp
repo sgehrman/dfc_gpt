@@ -114,7 +114,7 @@ void prompt_thread(llmodel_model model, const char *prompt,
   responses = 0;
 
   llmodel_prompt(model, prompt, prompt_template, prompt_function,
-                 response_function, recalculate_function, ctx, false);
+                 response_function, recalculate_function, ctx, false, NULL);
 
   // some questions get nothing, send something back
   if (responses == 0) {
@@ -191,10 +191,10 @@ void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
   threadedPrompt(model, promptCopy, promptTemplateCopy, ctx);
 }
 
-float *dfc_llmodel_embedding(llmodel_model model, const char *text,
-                             size_t *embedding_size) {
-  return llmodel_embedding(model, text, embedding_size);
-}
+// float *dfc_llmodel_embedding(llmodel_model model, const char *text,
+//                              size_t *embedding_size) {
+//   return llmodel_embedding(model, text, embedding_size);
+// }
 
 void dfc_llmodel_free_embedding(float *ptr) { llmodel_free_embedding(ptr); }
 
