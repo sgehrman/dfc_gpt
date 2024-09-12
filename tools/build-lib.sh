@@ -10,8 +10,13 @@ cd build
 # $ sudo apt install gcc-12
 # export CC=/usr/bin/gcc-12
 # export CXX=/usr/bin/g++-12
-export CC=/usr/bin/gcc
-export CXX=/usr/bin/g++
+# export CC=/usr/bin/gcc
+# export CXX=/usr/bin/g++
+
+# did this to set 12 as default
+# $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 20
+# $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 20
+
 
 cmake ..
 cmake --build . --parallel --config Release
