@@ -172,15 +172,6 @@ uint64_t dfc_llmodel_get_state_size(llmodel_model model) {
   return llmodel_get_state_size(model);
 }
 
-uint64_t dfc_llmodel_save_state_data(llmodel_model model, uint8_t *dest) {
-  return llmodel_save_state_data(model, dest);
-}
-
-uint64_t dfc_llmodel_restore_state_data(llmodel_model model,
-                                        const uint8_t *src) {
-  return llmodel_restore_state_data(model, src);
-}
-
 void dfc_llmodel_prompt(llmodel_model model, const char *prompt,
                         const char *promptTemplate,
                         llmodel_prompt_context *ctx) {
