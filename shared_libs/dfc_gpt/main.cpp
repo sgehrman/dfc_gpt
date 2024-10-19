@@ -9,7 +9,7 @@
 #include <string>
 #include <thread>
 
-#include "../gpt4all/gpt4all-backend/llmodel_c.h"
+#include "../gpt4all/gpt4all-backend/include/gpt4all-backend/llmodel_c.h"
 #include "./include/dart_api_dl.h"
 
 extern "C" {
