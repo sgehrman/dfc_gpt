@@ -8,10 +8,7 @@ import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 import 'package:flutter/services.dart';
 
 class BotIsolate {
-  BotIsolate({
-    required this.config,
-    required this.callback,
-  });
+  BotIsolate({required this.config, required this.callback});
 
   final BotConfig config;
   final void Function(BotIsolateResponse response) callback;
@@ -41,14 +38,15 @@ class BotIsolate {
 
   Future<_IsolateHandle> _startIsolate() async {
     final sendPortCompleter = Completer<_IsolateHandle>();
-    final ReceivePort receivePort = ReceivePort();
+    final receivePort = ReceivePort();
     Isolate? isolate;
     StreamSubscription<dynamic>? receivePortSubscription;
 
     receivePortSubscription = receivePort.listen((dynamic data) {
       if (data is SendPort) {
-        sendPortCompleter
-            .complete(_IsolateHandle(isolate: isolate!, sendPort: data));
+        sendPortCompleter.complete(
+          _IsolateHandle(isolate: isolate!, sendPort: data),
+        );
       } else if (data is BotResponse) {
         callback(
           BotIsolateResponse(
@@ -69,10 +67,7 @@ class BotIsolate {
       }
     });
 
-    isolate = await _spawn(
-      sendPort: receivePort.sendPort,
-      config: config,
-    );
+    isolate = await _spawn(sendPort: receivePort.sendPort, config: config);
 
     return sendPortCompleter.future;
   }
@@ -84,14 +79,11 @@ class BotIsolate {
     required SendPort sendPort,
     required BotConfig config,
   }) {
-    final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+    final rootIsolateToken = RootIsolateToken.instance!;
 
     return Isolate.spawn<SendPort>(
-      (sendPort) => BotIsolateFunction.isolateStart(
-        sendPort,
-        rootIsolateToken,
-        config,
-      ),
+      (sendPort) =>
+          BotIsolateFunction.isolateStart(sendPort, rootIsolateToken, config),
       sendPort,
       debugName: 'BotIsolate',
       errorsAreFatal: false,
@@ -104,10 +96,7 @@ class BotIsolate {
 // ==================================================
 
 class _IsolateHandle {
-  _IsolateHandle({
-    required this.isolate,
-    required this.sendPort,
-  });
+  _IsolateHandle({required this.isolate, required this.sendPort});
 
   Isolate isolate;
   SendPort sendPort;

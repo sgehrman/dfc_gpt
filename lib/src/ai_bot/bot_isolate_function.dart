@@ -27,12 +27,12 @@ class BotIsolateFunction {
     DartPluginRegistrant.ensureInitialized();
 
     StreamSubscription<dynamic>? receivePortSubscription;
-    final ReceivePort receivePort = ReceivePort();
+    final receivePort = ReceivePort();
 
     BotRequestHandler? requestHandler = BotRequestHandler(
       config: config,
       callback: (output) {
-        final BotResponse response = BotResponse(output: output);
+        final response = BotResponse(output: output);
         sendPort.send(response);
       },
     );
@@ -65,10 +65,7 @@ class BotIsolateFunction {
 // ==================================================
 
 class BotRequestHandler {
-  BotRequestHandler({
-    required this.config,
-    required this.callback,
-  });
+  BotRequestHandler({required this.config, required this.callback});
 
   final BotConfig config;
 
@@ -118,8 +115,6 @@ class BotRequestHandler {
       await LLModelLibrary.shared.shutdownGracefully();
     }
 
-    _model?.generate(
-      prompt: request.question,
-    );
+    _model?.generate(prompt: request.question);
   }
 }

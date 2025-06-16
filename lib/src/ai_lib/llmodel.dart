@@ -49,14 +49,11 @@ class LLModel {
       );
 
       if (_model.address == ffi.nullptr.address) {
-        final String errorMsg = error.value.toDartString();
+        final errorMsg = error.value.toDartString();
         throw Exception('Could not load gpt4all backend: $errorMsg');
       }
 
-      LLModelLibrary.shared.loadModel(
-        model: _model,
-        modelPath: modelFile.path,
-      );
+      LLModelLibrary.shared.loadModel(model: _model, modelPath: modelFile.path);
 
       if (LLModelLibrary.shared.isModelLoaded(model: _model)) {
         _isLoaded = true;
@@ -68,16 +65,14 @@ class LLModel {
     }
   }
 
-  void generate({
-    required String prompt,
-  }) {
+  void generate({required String prompt}) {
     _logContext();
     // sometimes models get stuck? a reset helps, but some models give a BOS?
     // first token must be BOS?
     // https://github.com/nomic-ai/gpt4all/pull/1023
     // _resetPromptContext();
 
-    String promptTemplate = modelFile.promptTemplate;
+    var promptTemplate = modelFile.promptTemplate;
     if (promptTemplate.isEmpty) {
       promptTemplate = '### Human: \n%1\n### Assistant:\n';
     }
@@ -92,9 +87,7 @@ class LLModel {
 
   void dispose() {
     if (_isLoaded) {
-      LLModelLibrary.shared.modelDestroy(
-        model: _model,
-      );
+      LLModelLibrary.shared.modelDestroy(model: _model);
 
       _isLoaded = false;
     }

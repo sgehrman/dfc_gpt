@@ -6,20 +6,14 @@ import 'package:dfc_gpt/src/ai_bot/bot_isolate.dart';
 import 'package:dfc_gpt/src/ai_bot/bot_types.dart';
 
 class BotServer {
-  factory BotServer({
-    required BotConfig config,
-  }) {
-    return _instance ??= BotServer._(
-      config: config,
-    );
+  factory BotServer({required BotConfig config}) {
+    return _instance ??= BotServer._(config: config);
   }
 
-  BotServer._({
-    required this.config,
-  }) {
+  BotServer._({required this.config}) {
     _botIsolate = BotIsolate(
       config: config,
-      callback: (BotIsolateResponse response) {
+      callback: (response) {
         BotClientNotifier().notifyClients(response);
       },
     );
@@ -29,13 +23,9 @@ class BotServer {
   final BotConfig config;
   BotIsolate? _botIsolate;
 
-  static void initialize({
-    required BotConfig config,
-  }) {
+  static void initialize({required BotConfig config}) {
     // initialize _instance
-    BotServer(
-      config: config,
-    );
+    BotServer(config: config);
   }
 
   static BotServer get shared {
@@ -60,11 +50,7 @@ class BotServer {
     // send question asked from use first
     // that way your list of messages list for your typing and the bots
     BotClientNotifier().notifyClients(
-      BotIsolateResponse(
-        type: 'gpt-response',
-        data: question,
-        fromUser: true,
-      ),
+      BotIsolateResponse(type: 'gpt-response', data: question, fromUser: true),
     );
 
     await _botIsolate?.send(
